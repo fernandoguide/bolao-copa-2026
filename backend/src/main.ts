@@ -19,7 +19,7 @@ async function bootstrap() {
   );
 
   const port = process.env.PORT || 3001;
-  await app.listen(port);
+  await app.listen(port, "0.0.0.0");
   console.log(`🏆 API Bolão Copa 2026 rodando na porta ${port}`);
 }
 bootstrap();

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Controller, Get } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './modules/auth/auth.module';
@@ -7,6 +7,14 @@ import { TeamsModule } from './modules/teams/teams.module';
 import { MatchesModule } from './modules/matches/matches.module';
 import { PredictionsModule } from './modules/predictions/predictions.module';
 import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
+
+@Controller()
+export class HealthController {
+  @Get()
+  health() {
+    return { status: 'ok' };
+  }
+}
 
 @Module({
   imports: [
@@ -30,5 +38,6 @@ import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
     PredictionsModule,
     LeaderboardModule,
   ],
+  controllers: [HealthController],
 })
 export class AppModule {}
