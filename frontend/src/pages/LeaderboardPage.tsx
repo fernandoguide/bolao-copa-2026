@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { LeaderboardEntry } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import { useI18n } from '../i18n';
 
 export default function LeaderboardPage() {
     const { user } = useAuth();
+    const { t } = useI18n();
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -15,7 +17,7 @@ export default function LeaderboardPage() {
         });
     }, []);
 
-    if (loading) return <div className="text-center py-12 text-dark-400">Carregando classificação...</div>;
+    if (loading) return <div className="text-center py-12 text-dark-400">{t.leaderboardLoading}</div>;
 
     function getMedal(pos: number) {
         if (pos === 0) return '🥇';
@@ -26,20 +28,20 @@ export default function LeaderboardPage() {
 
     return (
         <div>
-            <h1 className="text-2xl font-bold text-white mb-6">🏆 Classificação Geral</h1>
+            <h1 className="text-2xl font-bold text-white mb-6">{t.leaderboardTitle}</h1>
 
             {leaderboard.length === 0 ? (
-                <p className="text-dark-500 text-center py-12">Nenhum palpite registrado ainda.</p>
+                <p className="text-dark-500 text-center py-12">{t.leaderboardEmpty}</p>
             ) : (
                 <div className="overflow-x-auto">
                     <table className="w-full bg-dark-800 rounded-xl border border-dark-700 overflow-hidden">
                         <thead>
                             <tr className="bg-dark-900 border-b border-dark-700">
                                 <th className="text-center px-4 py-3 text-sm font-medium text-dark-400 w-16">#</th>
-                                <th className="text-left px-4 py-3 text-sm font-medium text-dark-400">Participante</th>
-                                <th className="text-center px-4 py-3 text-sm font-medium text-dark-400">Pontos</th>
-                                <th className="text-center px-4 py-3 text-sm font-medium text-dark-400">Palpites</th>
-                                <th className="text-center px-4 py-3 text-sm font-medium text-dark-400">Placares Exatos</th>
+                                <th className="text-left px-4 py-3 text-sm font-medium text-dark-400">{t.leaderboardParticipant}</th>
+                                <th className="text-center px-4 py-3 text-sm font-medium text-dark-400">{t.leaderboardPoints}</th>
+                                <th className="text-center px-4 py-3 text-sm font-medium text-dark-400">{t.leaderboardPredictions}</th>
+                                <th className="text-center px-4 py-3 text-sm font-medium text-dark-400">{t.leaderboardExactScores}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -57,7 +59,7 @@ export default function LeaderboardPage() {
                                         <td className="px-4 py-3">
                                             <span className={isMe ? 'text-primary-300 font-semibold' : 'text-dark-200'}>
                                                 {entry.name}
-                                                {isMe && <span className="text-xs ml-2 text-primary-500">(você)</span>}
+                                                {isMe && <span className="text-xs ml-2 text-primary-500">({t.leaderboardYou})</span>}
                                             </span>
                                         </td>
                                         <td className="text-center px-4 py-3">
