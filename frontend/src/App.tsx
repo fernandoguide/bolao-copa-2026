@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
+import { useI18n } from './i18n';
 import Layout from './components/Layout';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -12,15 +13,17 @@ import DashboardPage from './pages/DashboardPage';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
     const { signed, loading } = useAuth();
-    if (loading) return <div className="p-8 text-center">Carregando...</div>;
+    const { t } = useI18n();
+    if (loading) return <div className="p-8 text-center">{t.loading}</div>;
     return signed ? <>{children}</> : <Navigate to="/login" />;
 }
 
 export default function App() {
     const { signed, loading } = useAuth();
+    const { t } = useI18n();
 
     if (loading) {
-        return <div className="flex items-center justify-center min-h-screen text-lg">Carregando...</div>;
+        return <div className="flex items-center justify-center min-h-screen text-lg">{t.loading}</div>;
     }
 
     return (

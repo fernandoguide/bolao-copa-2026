@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { api } from '../services/api';
 import { Team, Match } from '../types';
 import { getFlagUrl } from '../utils/flags';
+import { useI18n } from '../i18n';
 
 interface TeamStanding {
     team: Team;
@@ -89,6 +90,7 @@ function calculateStandings(teams: Team[], matches: Match[]): Record<string, Tea
 }
 
 export default function TeamsPage() {
+    const { t } = useI18n();
     const [teams, setTeams] = useState<Team[]>([]);
     const [matches, setMatches] = useState<Match[]>([]);
     const [loading, setLoading] = useState(true);
@@ -110,31 +112,31 @@ export default function TeamsPage() {
         [groups]
     );
 
-    if (loading) return <div className="text-center py-12 text-dark-400">Carregando grupos...</div>;
+    if (loading) return <div className="text-center py-12 text-dark-400">{t.teamsLoading}</div>;
 
     return (
         <div>
-            <h1 className="text-2xl font-bold text-white mb-6">🌍 Grupos — Copa 2026</h1>
+            <h1 className="text-2xl font-bold text-white mb-6">{t.teamsTitle}</h1>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 {sortedGroups.map(([group, standings]) => (
                     <div key={group} className="bg-dark-800 rounded-xl border border-dark-700 overflow-hidden">
                         <div className="bg-gradient-to-r from-primary-600 to-primary-700 text-white px-4 py-2.5 font-bold text-center">
-                            Grupo {group}
+                            {t.teamsGroup} {group}
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm">
                                 <thead>
                                     <tr className="bg-dark-900 text-dark-400 text-xs">
-                                        <th className="text-left px-3 py-2 w-[40%]">Seleção</th>
-                                        <th className="text-center px-1 py-2">J</th>
-                                        <th className="text-center px-1 py-2">V</th>
-                                        <th className="text-center px-1 py-2">E</th>
-                                        <th className="text-center px-1 py-2">D</th>
-                                        <th className="text-center px-1 py-2">GP</th>
-                                        <th className="text-center px-1 py-2">GC</th>
-                                        <th className="text-center px-1 py-2">SG</th>
-                                        <th className="text-center px-2 py-2 font-bold text-primary-400">PTS</th>
+                                        <th className="text-left px-3 py-2 w-[40%]">{t.teamsTeam}</th>
+                                        <th className="text-center px-1 py-2">{t.teamsPlayed}</th>
+                                        <th className="text-center px-1 py-2">{t.teamsWins}</th>
+                                        <th className="text-center px-1 py-2">{t.teamsDraws}</th>
+                                        <th className="text-center px-1 py-2">{t.teamsLosses}</th>
+                                        <th className="text-center px-1 py-2">{t.teamsGoalsFor}</th>
+                                        <th className="text-center px-1 py-2">{t.teamsGoalsAgainst}</th>
+                                        <th className="text-center px-1 py-2">{t.teamsGoalDiff}</th>
+                                        <th className="text-center px-2 py-2 font-bold text-primary-400">{t.teamsPointsAbbr}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-dark-700">
@@ -175,7 +177,7 @@ export default function TeamsPage() {
             </div>
 
             {teams.length === 0 && (
-                <p className="text-dark-500 text-center py-12">Nenhuma seleção cadastrada.</p>
+                <p className="text-dark-500 text-center py-12">{t.teamsEmpty}</p>
             )}
         </div>
     );
