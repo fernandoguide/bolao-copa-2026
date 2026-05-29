@@ -15,7 +15,7 @@ export default function LoginPage() {
         setLoading(true);
         try {
             await login(email);
-            navigate('/jogos');
+            navigate('/regras');
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Erro ao fazer login');
         } finally {

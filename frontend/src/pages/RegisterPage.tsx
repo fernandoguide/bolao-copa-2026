@@ -16,7 +16,7 @@ export default function RegisterPage() {
         setLoading(true);
         try {
             await register(name, email);
-            navigate('/jogos');
+            navigate('/regras');
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Erro ao cadastrar');
         } finally {

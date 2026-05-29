@@ -137,7 +137,7 @@ export default function MatchesPage() {
 
             {/* Week pagination */}
             {totalWeeks > 0 && (
-                <div className="flex items-center justify-between mb-6 bg-dark-800 rounded-xl border border-dark-700 p-3">
+                <div className="flex items-center justify-between mb-6 bg-dark-800/95 backdrop-blur-md rounded-xl border border-dark-700 p-3 sticky top-[60px] z-40">
                     <button
                         onClick={() => setCurrentWeek(Math.max(0, safeWeek - 1))}
                         disabled={safeWeek === 0}
