@@ -8,6 +8,7 @@ import MyPredictionsPage from './pages/MyPredictionsPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import TeamsPage from './pages/TeamsPage';
 import RulesPage from './pages/RulesPage';
+import DashboardPage from './pages/DashboardPage';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
     const { signed, loading } = useAuth();
@@ -24,8 +25,8 @@ export default function App() {
 
     return (
         <Routes>
-            <Route path="/login" element={signed ? <Navigate to="/jogos" /> : <LoginPage />} />
-            <Route path="/registro" element={signed ? <Navigate to="/jogos" /> : <RegisterPage />} />
+            <Route path="/login" element={signed ? <Navigate to="/regras" /> : <LoginPage />} />
+            <Route path="/registro" element={signed ? <Navigate to="/regras" /> : <RegisterPage />} />
             <Route
                 path="/"
                 element={
@@ -34,12 +35,13 @@ export default function App() {
                     </PrivateRoute>
                 }
             >
-                <Route index element={<Navigate to="/jogos" />} />
+                <Route index element={<Navigate to="/regras" />} />
+                <Route path="regras" element={<RulesPage />} />
+                <Route path="dashboard" element={<DashboardPage />} />
                 <Route path="jogos" element={<MatchesPage />} />
                 <Route path="meus-palpites" element={<MyPredictionsPage />} />
                 <Route path="classificacao" element={<LeaderboardPage />} />
                 <Route path="selecoes" element={<TeamsPage />} />
-                <Route path="regras" element={<RulesPage />} />
             </Route>
         </Routes>
     );

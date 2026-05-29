@@ -3,11 +3,12 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const navItems = [
+    { path: '/regras', label: '📋 Regras' },
+    { path: '/dashboard', label: '📊 Dashboard' },
     { path: '/jogos', label: '⚽ Jogos' },
     { path: '/meus-palpites', label: '🎯 Palpites' },
     { path: '/classificacao', label: '🏆 Ranking' },
     { path: '/selecoes', label: '🌍 Seleções' },
-    { path: '/regras', label: '📋 Regras' },
 ];
 
 export default function Header() {
