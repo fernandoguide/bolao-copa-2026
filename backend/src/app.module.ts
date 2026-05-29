@@ -23,14 +23,20 @@ export class HealthController {
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: "postgres",
-        url: config.get<string>("DATABASE_URL"),
-        autoLoadEntities: true,
-        synchronize: false,
-        migrations: [join(__dirname, "migrations", "*.js")],
-        migrationsRun: true,
-      }),
+      useFactory: (config: ConfigService) => {
+        const dbUrl = config.get<string>("DATABASE_URL") || "";
+        return {
+          type: "postgres" as const,
+          url: dbUrl,
+          ssl: dbUrl.includes("localhost")
+            ? false
+            : { rejectUnauthorized: false },
+          autoLoadEntities: true,
+          synchronize: false,
+          migrations: [join(__dirname, "migrations", "*.js")],
+          migrationsRun: true,
+        };
+      },
     }),
     AuthModule,
     UsersModule,
