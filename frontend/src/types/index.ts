@@ -27,6 +27,7 @@ export interface Match {
 export interface Prediction {
   id: number;
   match: Match;
+  user?: User;
   homeScore: number;
   awayScore: number;
   points: number;

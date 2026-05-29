@@ -52,6 +52,13 @@ export class PredictionsService {
     return this.predictionsRepo.save(prediction);
   }
 
+  async findAll(): Promise<Prediction[]> {
+    return this.predictionsRepo.find({
+      relations: ["user", "match", "match.homeTeam", "match.awayTeam"],
+      order: { user_id: "ASC", match: { matchDate: "ASC" } },
+    });
+  }
+
   async findByUser(userId: string): Promise<Prediction[]> {
     return this.predictionsRepo.find({
       where: { user_id: userId },

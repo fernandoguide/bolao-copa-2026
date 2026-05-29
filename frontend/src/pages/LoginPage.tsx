@@ -6,7 +6,6 @@ export default function LoginPage() {
     const { login } = useAuth();
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -15,7 +14,7 @@ export default function LoginPage() {
         setError('');
         setLoading(true);
         try {
-            await login(email, password);
+            await login(email);
             navigate('/jogos');
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Erro ao fazer login');
@@ -48,18 +47,6 @@ export default function LoginPage() {
                             required
                             className="w-full bg-dark-900 border border-dark-600 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none placeholder-dark-500"
                             placeholder="seu@email.com"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-dark-300 mb-1">Senha</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            className="w-full bg-dark-900 border border-dark-600 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none placeholder-dark-500"
-                            placeholder="••••••"
                         />
                     </div>
 

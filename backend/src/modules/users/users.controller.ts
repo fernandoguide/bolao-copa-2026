@@ -11,9 +11,7 @@ export class UsersController {
   @Get("me")
   async getProfile(@Req() req: Request) {
     const user = await this.usersService.findById((req as any).user.id);
-    if (!user) return null;
-    const { password, ...result } = user;
-    return result;
+    return user;
   }
 
   @UseGuards(JwtAuthGuard)

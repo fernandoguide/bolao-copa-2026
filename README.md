@@ -21,13 +21,13 @@ bolao-copa-2026/
 
 ### Stack
 
-| Camada    | Tecnologia                                |
-|-----------|-------------------------------------------|
-| Backend   | NestJS 10, TypeORM 0.3, Passport JWT, bcrypt |
-| Frontend  | React 18, Vite 5, TypeScript 5, Tailwind CSS 3, React Router 6 |
-| Banco     | PostgreSQL 16                              |
-| Infra     | Docker multi-stage, Docker Compose, Nginx  |
-| Testes    | Jest 29, ts-jest, @nestjs/testing (50 testes) |
+| Camada   | Tecnologia                                                     |
+| -------- | -------------------------------------------------------------- |
+| Backend  | NestJS 10, TypeORM 0.3, Passport JWT                           |
+| Frontend | React 18, Vite 5, TypeScript 5, Tailwind CSS 3, React Router 6 |
+| Banco    | PostgreSQL 16                                                  |
+| Infra    | Docker multi-stage, Docker Compose, Nginx                      |
+| Testes   | Jest 29, ts-jest, @nestjs/testing (49 testes)                  |
 
 ---
 
@@ -48,11 +48,11 @@ Sobe banco, backend e frontend com um único comando:
 docker compose up --build
 ```
 
-| Serviço  | URL                         |
-|----------|-----------------------------|
-| Frontend | http://localhost:5173        |
-| API      | http://localhost:3001/api    |
-| Postgres | localhost:5432               |
+| Serviço  | URL                       |
+| -------- | ------------------------- |
+| Frontend | http://localhost:5173     |
+| API      | http://localhost:3001/api |
+| Postgres | localhost:5432            |
 
 Para rodar em background:
 
@@ -149,74 +149,81 @@ npm run seed
 
 ## 📱 Páginas do Frontend
 
-| Página             | Rota              | Descrição                                 |
-|--------------------|-------------------|-------------------------------------------|
-| Login              | `/login`          | Autenticação com e-mail e senha           |
-| Cadastro           | `/register`       | Criar nova conta                          |
-| Jogos              | `/matches`        | Lista de partidas com placares            |
-| Meus Palpites      | `/predictions`    | Registrar/editar palpites por jogo        |
-| Ranking            | `/leaderboard`    | Tabela de classificação dos participantes |
-| Seleções           | `/teams`          | Seleções organizadas por grupo            |
-| Regras             | `/rules`          | Explicação do sistema de pontuação        |
+| Página        | Rota           | Descrição                                 |
+| ------------- | -------------- | ----------------------------------------- |
+| Login         | `/login`       | Autenticação com e-mail                   |
+| Cadastro      | `/register`    | Criar nova conta (nome + e-mail)          |
+| Jogos         | `/matches`     | Lista de partidas com placares            |
+| Meus Palpites | `/predictions` | Registrar/editar palpites por jogo        |
+| Ranking       | `/leaderboard` | Tabela de classificação dos participantes |
+| Seleções      | `/teams`       | Seleções organizadas por grupo            |
+| Regras        | `/rules`       | Explicação do sistema de pontuação        |
 
 ---
 
 ## 📡 Endpoints da API
 
 ### Auth (público)
-| Método | Rota                  | Descrição           |
-|--------|-----------------------|---------------------|
-| POST   | `/api/auth/register`  | Criar conta         |
-| POST   | `/api/auth/login`     | Login (retorna JWT) |
+
+| Método | Rota                 | Descrição           |
+| ------ | -------------------- | ------------------- |
+| POST   | `/api/auth/register` | Criar conta         |
+| POST   | `/api/auth/login`    | Login (retorna JWT) |
 
 ### Users (autenticado)
-| Método | Rota             | Descrição            |
-|--------|------------------|----------------------|
-| GET    | `/api/users/me`  | Perfil do usuário    |
-| GET    | `/api/users`     | Listar participantes |
+
+| Método | Rota            | Descrição            |
+| ------ | --------------- | -------------------- |
+| GET    | `/api/users/me` | Perfil do usuário    |
+| GET    | `/api/users`    | Listar participantes |
 
 ### Teams (autenticado)
+
 | Método | Rota                      | Descrição              |
-|--------|---------------------------|------------------------|
+| ------ | ------------------------- | ---------------------- |
 | GET    | `/api/teams`              | Todas as seleções      |
 | GET    | `/api/teams/group/:group` | Seleções por grupo     |
 | GET    | `/api/teams/:id`          | Detalhe de uma seleção |
 
 ### Matches (autenticado)
-| Método | Rota                        | Descrição             |
-|--------|-----------------------------|-----------------------|
-| GET    | `/api/matches`              | Todas as partidas     |
-| GET    | `/api/matches/upcoming`     | Próximas partidas     |
-| GET    | `/api/matches/stage/:stage` | Partidas por fase     |
-| GET    | `/api/matches/:id`          | Detalhe da partida    |
-| PATCH  | `/api/matches/:id/result`   | Registrar resultado   |
+
+| Método | Rota                        | Descrição           |
+| ------ | --------------------------- | ------------------- |
+| GET    | `/api/matches`              | Todas as partidas   |
+| GET    | `/api/matches/upcoming`     | Próximas partidas   |
+| GET    | `/api/matches/stage/:stage` | Partidas por fase   |
+| GET    | `/api/matches/:id`          | Detalhe da partida  |
+| PATCH  | `/api/matches/:id/result`   | Registrar resultado |
 
 **Fases disponíveis:** `group`, `round_of_32`, `round_of_16`, `quarter_final`, `semi_final`, `third_place`, `final`
 
 ### Predictions (autenticado)
-| Método | Rota                                  | Descrição               |
-|--------|---------------------------------------|-------------------------|
-| POST   | `/api/predictions`                    | Criar/atualizar palpite |
-| GET    | `/api/predictions/my`                 | Meus palpites           |
-| GET    | `/api/predictions/match/:matchId`     | Palpites de uma partida |
+
+| Método | Rota                              | Descrição               |
+| ------ | --------------------------------- | ----------------------- |
+| POST   | `/api/predictions`                | Criar/atualizar palpite |
+| GET    | `/api/predictions/my`             | Meus palpites           |
+| GET    | `/api/predictions/match/:matchId` | Palpites de uma partida |
 
 ### Leaderboard (autenticado)
+
 | Método | Rota               | Descrição     |
-|--------|---------------------|--------------|
-| GET    | `/api/leaderboard`  | Ranking geral |
+| ------ | ------------------ | ------------- |
+| GET    | `/api/leaderboard` | Ranking geral |
 
 ---
 
 ## 🏆 Sistema de Pontuação
 
-| Resultado do palpite                    | Pontos |
-|-----------------------------------------|--------|
-| Placar exato                            | **10** |
-| Vencedor correto + saldo de gols certo  | **7**  |
-| Apenas vencedor correto                 | **5**  |
-| Errou                                   | **0**  |
+| Resultado do palpite                   | Pontos |
+| -------------------------------------- | ------ |
+| Placar exato                           | **10** |
+| Vencedor correto + saldo de gols certo | **7**  |
+| Apenas vencedor correto                | **5**  |
+| Errou                                  | **0**  |
 
 **Exemplo:**
+
 - Resultado real: Brasil 2×1 Marrocos
 - Palpite 2×1 → 10 pontos (exato)
 - Palpite 3×2 → 7 pontos (vencedor + saldo)
@@ -227,15 +234,15 @@ npm run seed
 
 ## 🏟️ Seleções e Grupos
 
-| Grupo | Seleções                                        |
-|-------|-------------------------------------------------|
+| Grupo | Seleções                                          |
+| ----- | ------------------------------------------------- |
 | A     | México, África do Sul, Coreia do Sul, Rep. Tcheca |
-| B     | Canadá, Bósnia e Herzegovina, Catar, Suíça       |
+| B     | Canadá, Bósnia e Herzegovina, Catar, Suíça        |
 | C     | Brasil, Marrocos, Haiti, Escócia                  |
 | D     | Estados Unidos, Paraguai, Austrália, Turquia      |
 | E     | Alemanha, Curaçao, Costa do Marfim, Equador       |
 | F     | Holanda, Japão, Suécia, Tunísia                   |
-| G     | Bélgica, Egito, Irã, Nova Zelândia               |
+| G     | Bélgica, Egito, Irã, Nova Zelândia                |
 | H     | Espanha, Cabo Verde, Arábia Saudita, Uruguai      |
 | I     | França, Senegal, Iraque, Noruega                  |
 | J     | Argentina, Argélia, Áustria, Jordânia             |
@@ -246,15 +253,15 @@ npm run seed
 
 ## 📅 Calendário
 
-| Fase               | Datas                    | Jogos |
-|--------------------|--------------------------|-------|
-| Fase de Grupos     | 11/06 – 27/06/2026      | 72    |
-| 32avos de final    | 28/06 – 03/07/2026      | 16    |
-| Oitavas de final   | 04/07 – 07/07/2026      | 8     |
-| Quartas de final   | 09/07 – 11/07/2026      | 4     |
-| Semifinais         | 14/07 – 15/07/2026      | 2     |
-| Disputa 3° lugar   | 18/07/2026              | 1     |
-| Final              | 19/07/2026              | 1     |
+| Fase             | Datas              | Jogos |
+| ---------------- | ------------------ | ----- |
+| Fase de Grupos   | 11/06 – 27/06/2026 | 72    |
+| 32avos de final  | 28/06 – 03/07/2026 | 16    |
+| Oitavas de final | 04/07 – 07/07/2026 | 8     |
+| Quartas de final | 09/07 – 11/07/2026 | 4     |
+| Semifinais       | 14/07 – 15/07/2026 | 2     |
+| Disputa 3° lugar | 18/07/2026         | 1     |
+| Final            | 19/07/2026         | 1     |
 
 Todos os horários exibidos em **GMT-3 (América/São_Paulo)**.
 
@@ -265,8 +272,8 @@ Todos os horários exibidos em **GMT-3 (América/São_Paulo)**.
 ### Backend (`backend/.env`)
 
 | Variável       | Descrição                     | Padrão                                                    |
-|----------------|-------------------------------|-----------------------------------------------------------|
-| DATABASE_URL   | Connection string do Postgres | `postgres://bolao:bolao123@localhost:5432/bolao_copa2026`  |
+| -------------- | ----------------------------- | --------------------------------------------------------- |
+| DATABASE_URL   | Connection string do Postgres | `postgres://bolao:bolao123@localhost:5432/bolao_copa2026` |
 | JWT_SECRET     | Chave para assinar tokens     | — (obrigatório)                                           |
 | JWT_EXPIRES_IN | Validade do token             | `7d`                                                      |
 | PORT           | Porta da API                  | `3001`                                                    |
@@ -275,9 +282,9 @@ Todos os horários exibidos em **GMT-3 (América/São_Paulo)**.
 
 ### Frontend (`frontend/.env`)
 
-| Variável       | Descrição              | Padrão (dev)              |
-|----------------|------------------------|---------------------------|
-| VITE_API_URL   | URL base da API        | `/api` (proxy do Vite)    |
+| Variável     | Descrição       | Padrão (dev)           |
+| ------------ | --------------- | ---------------------- |
+| VITE_API_URL | URL base da API | `/api` (proxy do Vite) |
 
 ---
 
@@ -285,26 +292,26 @@ Todos os horários exibidos em **GMT-3 (América/São_Paulo)**.
 
 ### Backend
 
-| Script                | Descrição                          |
-|-----------------------|------------------------------------|
-| `npm run start:dev`   | Inicia com hot-reload              |
-| `npm run build`       | Compila para produção              |
-| `npm run start:prod`  | Executa build de produção          |
-| `npm run test`        | Roda todos os testes (50 testes)   |
-| `npm run test:cov`    | Testes com cobertura               |
-| `npm run migration:generate -- src/migrations/Nome` | Gera migration |
-| `npm run migration:run`    | Aplica migrations pendentes   |
-| `npm run migration:revert` | Reverte última migration      |
-| `npm run seed`        | Popula seleções e jogos no banco   |
-| `npm run lint`        | Lint + autofix                     |
+| Script                                              | Descrição                        |
+| --------------------------------------------------- | -------------------------------- |
+| `npm run start:dev`                                 | Inicia com hot-reload            |
+| `npm run build`                                     | Compila para produção            |
+| `npm run start:prod`                                | Executa build de produção        |
+| `npm run test`                                      | Roda todos os testes (49 testes) |
+| `npm run test:cov`                                  | Testes com cobertura             |
+| `npm run migration:generate -- src/migrations/Nome` | Gera migration                   |
+| `npm run migration:run`                             | Aplica migrations pendentes      |
+| `npm run migration:revert`                          | Reverte última migration         |
+| `npm run seed`                                      | Popula seleções e jogos no banco |
+| `npm run lint`                                      | Lint + autofix                   |
 
 ### Frontend
 
-| Script              | Descrição                     |
-|---------------------|-------------------------------|
-| `npm run dev`       | Dev server com HMR            |
-| `npm run build`     | Build de produção             |
-| `npm run preview`   | Preview do build local        |
+| Script            | Descrição              |
+| ----------------- | ---------------------- |
+| `npm run dev`     | Dev server com HMR     |
+| `npm run build`   | Build de produção      |
+| `npm run preview` | Preview do build local |
 
 ---
 
@@ -312,11 +319,11 @@ Todos os horários exibidos em **GMT-3 (América/São_Paulo)**.
 
 ### Serviços (`docker-compose.yml`)
 
-| Serviço  | Imagem / Build     | Porta  | Descrição               |
-|----------|--------------------|--------|-------------------------|
-| db       | postgres:16-alpine | 5432   | Banco de dados          |
-| backend  | ./backend          | 3001   | API NestJS              |
-| frontend | ./frontend         | 5173→80| SPA via Nginx           |
+| Serviço  | Imagem / Build     | Porta   | Descrição      |
+| -------- | ------------------ | ------- | -------------- |
+| db       | postgres:16-alpine | 5432    | Banco de dados |
+| backend  | ./backend          | 3001    | API NestJS     |
+| frontend | ./frontend         | 5173→80 | SPA via Nginx  |
 
 ### Build de Produção
 
@@ -343,6 +350,7 @@ npm run test:watch
 ```
 
 **Suítes de teste:**
+
 - `auth.service.spec.ts` / `auth.controller.spec.ts`
 - `users.service.spec.ts`
 - `teams.service.spec.ts` / `teams.controller.spec.ts`
@@ -366,4 +374,3 @@ npm run test:watch
 ## 📄 Licença
 
 Projeto pessoal — uso livre.
-

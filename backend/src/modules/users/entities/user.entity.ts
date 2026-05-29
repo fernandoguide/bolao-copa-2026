@@ -19,9 +19,6 @@ export class User {
   @Column({ unique: true, length: 255 })
   email: string;
 
-  @Column()
-  password: string;
-
   @OneToMany(() => Prediction, (prediction) => prediction.user)
   predictions: Prediction[];
 

@@ -6,8 +6,8 @@ interface AuthContextData {
     user: User | null;
     signed: boolean;
     loading: boolean;
-    login: (email: string, password: string) => Promise<void>;
-    register: (name: string, email: string, password: string) => Promise<void>;
+    login: (email: string) => Promise<void>;
+    register: (name: string, email: string) => Promise<void>;
     logout: () => void;
 }
 
@@ -29,14 +29,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
-    async function login(email: string, password: string) {
-        const res = await api.post<{ access_token: string; user: User }>('/auth/login', { email, password });
+    async function login(email: string) {
+        const res = await api.post<{ access_token: string; user: User }>('/auth/login', { email });
         localStorage.setItem('token', res.access_token);
         setUser(res.user);
     }
 
-    async function register(name: string, email: string, password: string) {
-        const res = await api.post<{ access_token: string; user: User }>('/auth/register', { name, email, password });
+    async function register(name: string, email: string) {
+        const res = await api.post<{ access_token: string; user: User }>('/auth/register', { name, email });
         localStorage.setItem('token', res.access_token);
         setUser(res.user);
     }

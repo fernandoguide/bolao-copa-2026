@@ -57,7 +57,7 @@ describe("UsersService", () => {
 
   describe("create", () => {
     it("deve criar e salvar um novo usuário", async () => {
-      const data = { name: "Novo", email: "novo@test.com", password: "hash" };
+      const data = { name: "Novo", email: "novo@test.com" };
       const created = { id: "uuid-2", ...data };
       repo.create.mockReturnValue(created);
       repo.save.mockResolvedValue(created);
@@ -70,7 +70,7 @@ describe("UsersService", () => {
   });
 
   describe("findAll", () => {
-    it("deve retornar lista de usuários sem password", async () => {
+    it("deve retornar lista de usuários", async () => {
       const users = [
         { id: "1", name: "A", email: "a@a.com", createdAt: new Date() },
       ];

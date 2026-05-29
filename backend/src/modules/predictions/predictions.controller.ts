@@ -22,6 +22,11 @@ export class PredictionsController {
     return this.predictionsService.create((req as any).user.id, dto);
   }
 
+  @Get("all")
+  async findAll() {
+    return this.predictionsService.findAll();
+  }
+
   @Get("my")
   async findMine(@Req() req: Request) {
     return this.predictionsService.findByUser((req as any).user.id);

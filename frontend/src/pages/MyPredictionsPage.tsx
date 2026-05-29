@@ -20,92 +20,132 @@ function pointsBadge(points: number) {
     return 'bg-dark-700 text-dark-400 border-dark-600';
 }
 
+interface GroupedUser {
+    userId: string;
+    name: string;
+    predictions: Prediction[];
+    totalPoints: number;
+}
+
 export default function MyPredictionsPage() {
-    const [predictions, setPredictions] = useState<Prediction[]>([]);
+    const [groups, setGroups] = useState<GroupedUser[]>([]);
     const [loading, setLoading] = useState(true);
+    const [expandedUser, setExpandedUser] = useState<string | null>(null);
 
     useEffect(() => {
-        api.get<Prediction[]>('/predictions/my').then((data) => {
-            setPredictions(data);
+        api.get<Prediction[]>('/predictions/all').then((data) => {
+            const map = new Map<string, GroupedUser>();
+            for (const pred of data) {
+                const userId = pred.user?.id || 'unknown';
+                const name = pred.user?.name || 'Desconhecido';
+                if (!map.has(userId)) {
+                    map.set(userId, { userId, name, predictions: [], totalPoints: 0 });
+                }
+                const group = map.get(userId)!;
+                group.predictions.push(pred);
+                group.totalPoints += pred.points;
+            }
+            const sorted = Array.from(map.values()).sort((a, b) => b.totalPoints - a.totalPoints);
+            setGroups(sorted);
             setLoading(false);
         });
     }, []);
 
     if (loading) return <div className="text-center py-12 text-dark-400">Carregando...</div>;
 
-    const totalPoints = predictions.reduce((sum, p) => sum + p.points, 0);
-
     return (
         <div>
-            <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-bold text-white">🎯 Meus Palpites</h1>
-                <div className="bg-primary-600/20 text-primary-300 px-4 py-2 rounded-lg font-bold border border-primary-500/20">
-                    Total: {totalPoints} pts
-                </div>
-            </div>
+            <h1 className="text-2xl font-bold text-white mb-6">🎯 Palpites</h1>
 
-            {predictions.length === 0 ? (
-                <p className="text-dark-500 text-center py-12">Você ainda não fez nenhum palpite.</p>
+            {groups.length === 0 ? (
+                <p className="text-dark-500 text-center py-12">Nenhum palpite registrado ainda.</p>
             ) : (
-                <div className="overflow-x-auto">
-                    <table className="w-full bg-dark-800 rounded-xl border border-dark-700 overflow-hidden">
-                        <thead>
-                            <tr className="bg-dark-900 border-b border-dark-700">
-                                <th className="text-left px-4 py-3 text-sm font-medium text-dark-400">Partida</th>
-                                <th className="text-center px-4 py-3 text-sm font-medium text-dark-400">Seu Palpite</th>
-                                <th className="text-center px-4 py-3 text-sm font-medium text-dark-400">Resultado</th>
-                                <th className="text-center px-4 py-3 text-sm font-medium text-dark-400">Fase</th>
-                                <th className="text-center px-4 py-3 text-sm font-medium text-dark-400">Pontos</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {predictions.map((pred) => (
-                                <tr key={pred.id} className="border-b border-dark-700 last:border-0 hover:bg-dark-700/50">
-                                    <td className="px-4 py-3 text-sm">
-                                        <div className="flex items-center gap-2">
-                                            {pred.match.homeTeam?.code && (
-                                                <img src={getFlagUrl(pred.match.homeTeam.code, 24)} alt="" className="w-5 h-3 object-cover rounded" />
-                                            )}
-                                            <span className="font-medium text-dark-200">{pred.match.homeTeam?.name || 'A definir'}</span>
-                                            <span className="text-dark-500">vs</span>
-                                            {pred.match.awayTeam?.code && (
-                                                <img src={getFlagUrl(pred.match.awayTeam.code, 24)} alt="" className="w-5 h-3 object-cover rounded" />
-                                            )}
-                                            <span className="font-medium text-dark-200">{pred.match.awayTeam?.name || 'A definir'}</span>
-                                        </div>
-                                    </td>
-                                    <td className="text-center px-4 py-3">
-                                        <span className="font-bold text-primary-300">
-                                            {pred.homeScore} × {pred.awayScore}
-                                        </span>
-                                    </td>
-                                    <td className="text-center px-4 py-3">
-                                        {pred.match.played ? (
-                                            <span className="font-bold text-dark-200">
-                                                {pred.match.homeScore} × {pred.match.awayScore}
-                                            </span>
-                                        ) : (
-                                            <span className="text-dark-500 text-sm">Aguardando</span>
-                                        )}
-                                    </td>
-                                    <td className="text-center px-4 py-3 text-xs text-dark-500">
-                                        {stageLabels[pred.match.stage] || pred.match.stage}
-                                    </td>
-                                    <td className="text-center px-4 py-3">
-                                        {pred.match.played ? (
-                                            <span
-                                                className={`inline-block px-2 py-0.5 rounded-full text-xs font-bold border ${pointsBadge(pred.points)}`}
-                                            >
-                                                {pred.points} pts
-                                            </span>
-                                        ) : (
-                                            <span className="text-dark-600">—</span>
-                                        )}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                <div className="space-y-3">
+                    {groups.map((group) => (
+                        <div key={group.userId} className="bg-dark-800 rounded-xl border border-dark-700 overflow-hidden">
+                            <button
+                                onClick={() => setExpandedUser(expandedUser === group.userId ? null : group.userId)}
+                                className="w-full flex items-center justify-between px-5 py-4 hover:bg-dark-700/50 transition-colors"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-9 h-9 bg-primary-600/20 rounded-full flex items-center justify-center text-primary-300 font-bold text-sm">
+                                        {group.name.charAt(0).toUpperCase()}
+                                    </div>
+                                    <span className="font-medium text-white">{group.name}</span>
+                                    <span className="text-dark-500 text-sm">({group.predictions.length} palpites)</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <span className="bg-primary-600/20 text-primary-300 px-3 py-1 rounded-lg text-sm font-bold border border-primary-500/20">
+                                        {group.totalPoints} pts
+                                    </span>
+                                    <span className={`text-dark-400 transition-transform ${expandedUser === group.userId ? 'rotate-180' : ''}`}>
+                                        ▼
+                                    </span>
+                                </div>
+                            </button>
+
+                            {expandedUser === group.userId && (
+                                <div className="border-t border-dark-700">
+                                    <table className="w-full">
+                                        <thead>
+                                            <tr className="bg-dark-900/50">
+                                                <th className="text-left px-4 py-2 text-xs font-medium text-dark-400">Partida</th>
+                                                <th className="text-center px-4 py-2 text-xs font-medium text-dark-400">Palpite</th>
+                                                <th className="text-center px-4 py-2 text-xs font-medium text-dark-400">Resultado</th>
+                                                <th className="text-center px-4 py-2 text-xs font-medium text-dark-400">Fase</th>
+                                                <th className="text-center px-4 py-2 text-xs font-medium text-dark-400">Pts</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {group.predictions.map((pred) => (
+                                                <tr key={pred.id} className="border-b border-dark-700/50 last:border-0 hover:bg-dark-700/30">
+                                                    <td className="px-4 py-2.5 text-sm">
+                                                        <div className="flex items-center gap-2">
+                                                            {pred.match.homeTeam?.code && (
+                                                                <img src={getFlagUrl(pred.match.homeTeam.code, 24)} alt="" className="w-5 h-3 object-cover rounded" />
+                                                            )}
+                                                            <span className="font-medium text-dark-200">{pred.match.homeTeam?.name || 'A definir'}</span>
+                                                            <span className="text-dark-500">×</span>
+                                                            {pred.match.awayTeam?.code && (
+                                                                <img src={getFlagUrl(pred.match.awayTeam.code, 24)} alt="" className="w-5 h-3 object-cover rounded" />
+                                                            )}
+                                                            <span className="font-medium text-dark-200">{pred.match.awayTeam?.name || 'A definir'}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="text-center px-4 py-2.5">
+                                                        <span className="font-bold text-primary-300">
+                                                            {pred.homeScore} × {pred.awayScore}
+                                                        </span>
+                                                    </td>
+                                                    <td className="text-center px-4 py-2.5">
+                                                        {pred.match.played ? (
+                                                            <span className="font-bold text-dark-200">
+                                                                {pred.match.homeScore} × {pred.match.awayScore}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-dark-500 text-xs">Aguardando</span>
+                                                        )}
+                                                    </td>
+                                                    <td className="text-center px-4 py-2.5 text-xs text-dark-500">
+                                                        {stageLabels[pred.match.stage] || pred.match.stage}
+                                                    </td>
+                                                    <td className="text-center px-4 py-2.5">
+                                                        {pred.match.played ? (
+                                                            <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-bold border ${pointsBadge(pred.points)}`}>
+                                                                {pred.points}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-dark-600">—</span>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </div>
+                    ))}
                 </div>
             )}
         </div>

@@ -7,7 +7,6 @@ export default function RegisterPage() {
     const navigate = useNavigate();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -16,7 +15,7 @@ export default function RegisterPage() {
         setError('');
         setLoading(true);
         try {
-            await register(name, email, password);
+            await register(name, email);
             navigate('/jogos');
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Erro ao cadastrar');
@@ -61,19 +60,6 @@ export default function RegisterPage() {
                             required
                             className="w-full bg-dark-900 border border-dark-600 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none placeholder-dark-500"
                             placeholder="seu@email.com"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-dark-300 mb-1">Senha</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            minLength={6}
-                            className="w-full bg-dark-900 border border-dark-600 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none placeholder-dark-500"
-                            placeholder="Mínimo 6 caracteres"
                         />
                     </div>
 
