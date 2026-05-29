@@ -1,0 +1,41 @@
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export interface Team {
+  id: number;
+  name: string;
+  code: string;
+  group: string;
+  flagUrl?: string;
+}
+
+export interface Match {
+  id: number;
+  homeTeam: Team;
+  awayTeam: Team;
+  matchDate: string;
+  stage: string;
+  homeScore: number | null;
+  awayScore: number | null;
+  played: boolean;
+}
+
+export interface Prediction {
+  id: number;
+  match: Match;
+  homeScore: number;
+  awayScore: number;
+  points: number;
+  createdAt: string;
+}
+
+export interface LeaderboardEntry {
+  userId: string;
+  name: string;
+  totalPoints: number;
+  totalPredictions: number;
+  exactScores: number;
+}
