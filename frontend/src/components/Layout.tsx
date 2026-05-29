@@ -9,7 +9,7 @@ export default function Layout() {
                 <Outlet />
             </main>
             <footer className="bg-dark-950 border-t border-dark-700/50 text-center py-4 text-sm text-dark-500">
-                <p>Bolão Copa do Mundo 2026 — Feito com ⚽ e ❤️</p>
+                <p>Bolão Copa do Mundo 2026 </p>
                 <p className="mt-1">Feito por Fernando Oliveira — Senior Software Engineer</p>
             </footer>
         </div>
