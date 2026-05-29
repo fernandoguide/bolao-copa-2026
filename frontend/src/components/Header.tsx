@@ -8,7 +8,7 @@ const navItems = [
     { path: '/jogos', label: '⚽ Jogos' },
     { path: '/meus-palpites', label: '🎯 Palpites' },
     { path: '/classificacao', label: '🏆 Ranking' },
-    { path: '/selecoes', label: '🌍 Seleções' },
+    { path: '/selecoes', label: '🌍 Grupos' },
 ];
 
 export default function Header() {
