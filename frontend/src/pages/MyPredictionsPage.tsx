@@ -1,22 +1,23 @@
 import { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { Prediction } from '../types';
+import { getFlagUrl } from '../utils/flags';
 
 const stageLabels: Record<string, string> = {
     group: 'Fase de Grupos',
-    round_of_32: 'Oitavas (32avos)',
-    round_of_16: 'Oitavas de Final',
-    quarter_final: 'Quartas de Final',
+    round_of_32: '32avos',
+    round_of_16: 'Oitavas',
+    quarter_final: 'Quartas',
     semi_final: 'Semifinal',
-    third_place: 'Disputa 3º Lugar',
+    third_place: '3º Lugar',
     final: 'Final',
 };
 
 function pointsBadge(points: number) {
-    if (points === 10) return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-    if (points === 7) return 'bg-blue-100 text-blue-800 border-blue-300';
-    if (points === 5) return 'bg-green-100 text-green-800 border-green-300';
-    return 'bg-gray-100 text-gray-600 border-gray-300';
+    if (points === 10) return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+    if (points === 7) return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+    if (points === 5) return 'bg-green-500/20 text-green-400 border-green-500/30';
+    return 'bg-dark-700 text-dark-400 border-dark-600';
 }
 
 export default function MyPredictionsPage() {
@@ -30,56 +31,64 @@ export default function MyPredictionsPage() {
         });
     }, []);
 
-    if (loading) return <div className="text-center py-12">Carregando...</div>;
+    if (loading) return <div className="text-center py-12 text-dark-400">Carregando...</div>;
 
     const totalPoints = predictions.reduce((sum, p) => sum + p.points, 0);
 
     return (
         <div>
             <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-bold text-gray-800">Meus Palpites</h1>
-                <div className="bg-primary-100 text-primary-800 px-4 py-2 rounded-lg font-bold">
+                <h1 className="text-2xl font-bold text-white">🎯 Meus Palpites</h1>
+                <div className="bg-primary-600/20 text-primary-300 px-4 py-2 rounded-lg font-bold border border-primary-500/20">
                     Total: {totalPoints} pts
                 </div>
             </div>
 
             {predictions.length === 0 ? (
-                <p className="text-gray-500 text-center py-12">Você ainda não fez nenhum palpite.</p>
+                <p className="text-dark-500 text-center py-12">Você ainda não fez nenhum palpite.</p>
             ) : (
                 <div className="overflow-x-auto">
-                    <table className="w-full bg-white rounded-lg shadow-sm border">
+                    <table className="w-full bg-dark-800 rounded-xl border border-dark-700 overflow-hidden">
                         <thead>
-                            <tr className="bg-gray-50 border-b">
-                                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Partida</th>
-                                <th className="text-center px-4 py-3 text-sm font-medium text-gray-600">Seu Palpite</th>
-                                <th className="text-center px-4 py-3 text-sm font-medium text-gray-600">Resultado</th>
-                                <th className="text-center px-4 py-3 text-sm font-medium text-gray-600">Fase</th>
-                                <th className="text-center px-4 py-3 text-sm font-medium text-gray-600">Pontos</th>
+                            <tr className="bg-dark-900 border-b border-dark-700">
+                                <th className="text-left px-4 py-3 text-sm font-medium text-dark-400">Partida</th>
+                                <th className="text-center px-4 py-3 text-sm font-medium text-dark-400">Seu Palpite</th>
+                                <th className="text-center px-4 py-3 text-sm font-medium text-dark-400">Resultado</th>
+                                <th className="text-center px-4 py-3 text-sm font-medium text-dark-400">Fase</th>
+                                <th className="text-center px-4 py-3 text-sm font-medium text-dark-400">Pontos</th>
                             </tr>
                         </thead>
                         <tbody>
                             {predictions.map((pred) => (
-                                <tr key={pred.id} className="border-b last:border-0 hover:bg-gray-50">
+                                <tr key={pred.id} className="border-b border-dark-700 last:border-0 hover:bg-dark-700/50">
                                     <td className="px-4 py-3 text-sm">
-                                        <span className="font-medium">{pred.match.homeTeam.name}</span>
-                                        {' vs '}
-                                        <span className="font-medium">{pred.match.awayTeam.name}</span>
+                                        <div className="flex items-center gap-2">
+                                            {pred.match.homeTeam?.code && (
+                                                <img src={getFlagUrl(pred.match.homeTeam.code, 24)} alt="" className="w-5 h-3 object-cover rounded" />
+                                            )}
+                                            <span className="font-medium text-dark-200">{pred.match.homeTeam?.name || 'A definir'}</span>
+                                            <span className="text-dark-500">vs</span>
+                                            {pred.match.awayTeam?.code && (
+                                                <img src={getFlagUrl(pred.match.awayTeam.code, 24)} alt="" className="w-5 h-3 object-cover rounded" />
+                                            )}
+                                            <span className="font-medium text-dark-200">{pred.match.awayTeam?.name || 'A definir'}</span>
+                                        </div>
                                     </td>
                                     <td className="text-center px-4 py-3">
-                                        <span className="font-bold text-primary-700">
+                                        <span className="font-bold text-primary-300">
                                             {pred.homeScore} × {pred.awayScore}
                                         </span>
                                     </td>
                                     <td className="text-center px-4 py-3">
                                         {pred.match.played ? (
-                                            <span className="font-bold text-gray-700">
+                                            <span className="font-bold text-dark-200">
                                                 {pred.match.homeScore} × {pred.match.awayScore}
                                             </span>
                                         ) : (
-                                            <span className="text-gray-400 text-sm">Aguardando</span>
+                                            <span className="text-dark-500 text-sm">Aguardando</span>
                                         )}
                                     </td>
-                                    <td className="text-center px-4 py-3 text-xs text-gray-500">
+                                    <td className="text-center px-4 py-3 text-xs text-dark-500">
                                         {stageLabels[pred.match.stage] || pred.match.stage}
                                     </td>
                                     <td className="text-center px-4 py-3">
@@ -90,7 +99,7 @@ export default function MyPredictionsPage() {
                                                 {pred.points} pts
                                             </span>
                                         ) : (
-                                            <span className="text-gray-300">—</span>
+                                            <span className="text-dark-600">—</span>
                                         )}
                                     </td>
                                 </tr>

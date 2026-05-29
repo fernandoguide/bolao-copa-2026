@@ -2,11 +2,11 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const navItems = [
-    { path: '/jogos', label: 'Jogos' },
-    { path: '/meus-palpites', label: 'Meus Palpites' },
-    { path: '/classificacao', label: 'Classificação' },
-    { path: '/selecoes', label: 'Seleções' },
-    { path: '/regras', label: 'Regras' },
+    { path: '/jogos', label: '⚽ Jogos' },
+    { path: '/meus-palpites', label: '🎯 Palpites' },
+    { path: '/classificacao', label: '🏆 Ranking' },
+    { path: '/selecoes', label: '🌍 Seleções' },
+    { path: '/regras', label: '📋 Regras' },
 ];
 
 export default function Header() {
@@ -14,10 +14,13 @@ export default function Header() {
     const location = useLocation();
 
     return (
-        <header className="bg-primary-800 text-white shadow-lg">
+        <header className="bg-dark-900/80 backdrop-blur-md border-b border-dark-700/50 sticky top-0 z-50">
             <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-                <Link to="/" className="flex items-center gap-2 font-bold text-xl">
-                    ⚽ Bolão Copa 2026
+                <Link to="/" className="flex items-center gap-2 font-bold text-xl text-white">
+                    <span className="text-2xl">⚽</span>
+                    <span className="bg-gradient-to-r from-primary-400 to-primary-300 bg-clip-text text-transparent">
+                        Bolão Copa 2026
+                    </span>
                 </Link>
 
                 <nav className="hidden md:flex items-center gap-1">
@@ -25,9 +28,9 @@ export default function Header() {
                         <Link
                             key={item.path}
                             to={item.path}
-                            className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${location.pathname === item.path
-                                    ? 'bg-primary-900 text-white'
-                                    : 'text-primary-100 hover:bg-primary-700'
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${location.pathname === item.path
+                                ? 'bg-primary-600/20 text-primary-300 border border-primary-500/30'
+                                : 'text-dark-300 hover:text-white hover:bg-dark-700/50'
                                 }`}
                         >
                             {item.label}
@@ -36,10 +39,12 @@ export default function Header() {
                 </nav>
 
                 <div className="flex items-center gap-3">
-                    <span className="text-sm text-primary-200">Olá, {user?.name}</span>
+                    <span className="text-sm text-dark-400">
+                        Olá, <span className="text-primary-300 font-medium">{user?.name}</span>
+                    </span>
                     <button
                         onClick={logout}
-                        className="text-sm bg-primary-900 hover:bg-primary-950 px-3 py-1.5 rounded-md transition-colors"
+                        className="text-sm bg-dark-700 hover:bg-dark-600 text-dark-300 hover:text-white px-3 py-1.5 rounded-lg transition-all border border-dark-600"
                     >
                         Sair
                     </button>

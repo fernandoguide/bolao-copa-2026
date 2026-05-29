@@ -14,13 +14,14 @@ export interface Team {
 
 export interface Match {
   id: number;
-  homeTeam: Team;
-  awayTeam: Team;
+  homeTeam: Team | null;
+  awayTeam: Team | null;
   matchDate: string;
   stage: string;
   homeScore: number | null;
   awayScore: number | null;
   played: boolean;
+  matchLabel?: string;
 }
 
 export interface Prediction {

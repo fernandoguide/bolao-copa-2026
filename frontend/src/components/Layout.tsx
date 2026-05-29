@@ -3,12 +3,12 @@ import Header from './Header';
 
 export default function Layout() {
     return (
-        <div className="min-h-screen flex flex-col">
+        <div className="min-h-screen flex flex-col bg-dark-900">
             <Header />
             <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
                 <Outlet />
             </main>
-            <footer className="bg-gray-100 border-t text-center py-4 text-sm text-gray-500">
+            <footer className="bg-dark-950 border-t border-dark-700/50 text-center py-4 text-sm text-dark-500">
                 Bolão Copa do Mundo 2026 — Feito com ⚽ e ❤️
             </footer>
         </div>
