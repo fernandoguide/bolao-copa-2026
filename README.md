@@ -2,6 +2,8 @@
 
 Aplicação fullstack para bolão de palpites da Copa do Mundo FIFA 2026 (EUA, México e Canadá).
 
+🔗 **Acesse:** https://bolao-copa2026.up.railway.app
+
 - **48 seleções** distribuídas em 12 grupos (A–L)
 - **104 jogos** — 72 na fase de grupos + 32 no mata-mata (32avos, oitavas, quartas, semi, 3° lugar e final)
 - Horários convertidos para **GMT-3 (América/São_Paulo)**
