@@ -11,7 +11,6 @@ Aplicação fullstack para bolão de palpites da Copa do Mundo FIFA 2026 (EUA, M
 
 ---
 
-
 ## Arquitetura
 
 ```
