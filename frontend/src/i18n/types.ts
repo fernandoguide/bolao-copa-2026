@@ -127,6 +127,7 @@ export interface Translations {
   dashboardMostPredicted: string;
   dashboardEachPts: string;
   dashboardTimesBet: string;
+  dashboardPredictionsHiddenNote: string;
 
   // Rules
   rulesTitle: string;

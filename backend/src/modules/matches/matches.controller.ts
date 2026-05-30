@@ -3,11 +3,16 @@ import { MatchesService } from "./matches.service";
 import { MatchStage } from "./entities/match.entity";
 import { UpdateResultDto } from "./dto/update-result.dto";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import { AdminGuard } from "../auth/guards/admin.guard";
+import { PredictionsService } from "../predictions/predictions.service";
 
 @Controller("matches")
 @UseGuards(JwtAuthGuard)
 export class MatchesController {
-  constructor(private readonly matchesService: MatchesService) {}
+  constructor(
+    private readonly matchesService: MatchesService,
+    private readonly predictionsService: PredictionsService
+  ) {}
 
   @Get()
   async findAll() {
@@ -30,7 +35,14 @@ export class MatchesController {
   }
 
   @Patch(":id/result")
+  @UseGuards(AdminGuard)
   async updateResult(@Param("id") id: number, @Body() dto: UpdateResultDto) {
-    return this.matchesService.updateResult(id, dto.homeScore, dto.awayScore);
+    const match = await this.matchesService.updateResult(
+      id,
+      dto.homeScore,
+      dto.awayScore
+    );
+    await this.predictionsService.calculatePoints(id);
+    return match;
   }
 }

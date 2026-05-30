@@ -17,6 +17,8 @@ export default function Header() {
         { path: '/meus-palpites', label: t.navPredictions },
         { path: '/classificacao', label: t.navRanking },
         { path: '/selecoes', label: t.navGroups },
+        { path: '/boloes', label: '🎲 Bolões' },
+        ...(user?.role === 'admin' ? [{ path: '/admin', label: '⚙️ Admin' }] : []),
     ];
 
     return (

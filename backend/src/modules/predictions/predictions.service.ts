@@ -2,6 +2,8 @@ import {
   Injectable,
   BadRequestException,
   ConflictException,
+  Inject,
+  forwardRef,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -14,6 +16,7 @@ export class PredictionsService {
   constructor(
     @InjectRepository(Prediction)
     private readonly predictionsRepo: Repository<Prediction>,
+    @Inject(forwardRef(() => MatchesService))
     private readonly matchesService: MatchesService
   ) {}
 
@@ -56,6 +59,21 @@ export class PredictionsService {
     return this.predictionsRepo.find({
       relations: ["user", "match", "match.homeTeam", "match.awayTeam"],
       order: { user_id: "ASC", match: { matchDate: "ASC" } },
+    });
+  }
+
+  async findAllFiltered(currentUserId: string): Promise<Prediction[]> {
+    const all = await this.predictionsRepo.find({
+      relations: ["user", "match", "match.homeTeam", "match.awayTeam"],
+      order: { user_id: "ASC", match: { matchDate: "ASC" } },
+    });
+
+    const now = new Date();
+    return all.filter((pred) => {
+      // Always show own predictions
+      if (pred.user_id === currentUserId) return true;
+      // Show others' predictions only if match has started
+      return new Date(pred.match.matchDate) <= now;
     });
   }
 

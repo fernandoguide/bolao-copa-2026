@@ -8,6 +8,7 @@ import { TeamsModule } from "./modules/teams/teams.module";
 import { MatchesModule } from "./modules/matches/matches.module";
 import { PredictionsModule } from "./modules/predictions/predictions.module";
 import { LeaderboardModule } from "./modules/leaderboard/leaderboard.module";
+import { PoolsModule } from "./modules/pools/pools.module";
 
 @Controller()
 export class HealthController {
@@ -44,6 +45,7 @@ export class HealthController {
     MatchesModule,
     PredictionsModule,
     LeaderboardModule,
+    PoolsModule,
   ],
   controllers: [HealthController],
 })

@@ -127,6 +127,8 @@ export const en: Translations = {
   dashboardMostPredicted: "Most Predicted Score",
   dashboardEachPts: "pts each",
   dashboardTimesBet: "x predicted",
+  dashboardPredictionsHiddenNote:
+    "Other players' predictions are only visible after the match starts.",
 
   // Rules
   rulesTitle: "📋 Pool Rules",

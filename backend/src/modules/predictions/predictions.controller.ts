@@ -23,8 +23,8 @@ export class PredictionsController {
   }
 
   @Get("all")
-  async findAll() {
-    return this.predictionsService.findAll();
+  async findAll(@Req() req: Request) {
+    return this.predictionsService.findAllFiltered((req as any).user.id);
   }
 
   @Get("my")

@@ -2,6 +2,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  role?: string;
 }
 
 export interface Team {
@@ -40,4 +41,23 @@ export interface LeaderboardEntry {
   totalPoints: number;
   totalPredictions: number;
   exactScores: number;
+}
+
+export interface Pool {
+  id: number;
+  name: string;
+  inviteCode: string;
+  ownerId: string;
+  owner?: User;
+  isPrivate: boolean;
+  members?: PoolMember[];
+  createdAt: string;
+}
+
+export interface PoolMember {
+  id: number;
+  poolId: number;
+  userId: string;
+  user?: User;
+  joinedAt: string;
 }

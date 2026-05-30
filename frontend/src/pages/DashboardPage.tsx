@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { Prediction, LeaderboardEntry } from '../types';
 import { useI18n } from '../i18n';
+import { useAuth } from '../contexts/AuthContext';
 
 interface UserStats {
     userId: string;
@@ -20,6 +21,7 @@ interface UserStats {
 
 export default function DashboardPage() {
     const { t } = useI18n();
+    const { user } = useAuth();
     const [allStats, setAllStats] = useState<UserStats[]>([]);
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
@@ -92,6 +94,10 @@ export default function DashboardPage() {
 
                 stats.sort((a, b) => a.rankPosition - b.rankPosition);
                 setAllStats(stats);
+                // Auto-select current user
+                if (user && stats.some((s) => s.userId === user.id)) {
+                    setSelectedUserId(user.id);
+                }
             } catch {
                 // silently fail
             } finally {
@@ -122,6 +128,9 @@ export default function DashboardPage() {
             </div>
 
             {/* User list */}
+            <p className="text-xs text-dark-500 italic">
+                {t.dashboardPredictionsHiddenNote || 'Os palpites dos outros jogadores só ficam visíveis após o jogo começar.'}
+            </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                 {allStats.map((userStat) => (
                     <button
@@ -136,7 +145,9 @@ export default function DashboardPage() {
                             <div className="w-8 h-8 bg-primary-600/20 rounded-full flex items-center justify-center text-primary-300 font-bold text-sm">
                                 {userStat.name.charAt(0).toUpperCase()}
                             </div>
-                            <span className="text-sm font-medium text-white truncate">{userStat.name}</span>
+                            <span className="text-sm font-medium text-white truncate">
+                                {userStat.name}{user && userStat.userId === user.id ? ' (Você)' : ''}
+                            </span>
                         </div>
                         <div className="flex items-center justify-between">
                             <span className="text-xs text-dark-400">{userStat.rankPosition}º {t.dashboardPlace}</span>

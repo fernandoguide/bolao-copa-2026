@@ -128,6 +128,8 @@ export const es: Translations = {
   dashboardMostPredicted: "Marcador Más Apostado",
   dashboardEachPts: "pts c/u",
   dashboardTimesBet: "x apostado",
+  dashboardPredictionsHiddenNote:
+    "Los pronósticos de otros jugadores solo son visibles después de que comience el partido.",
 
   // Rules
   rulesTitle: "📋 Reglas de la ",

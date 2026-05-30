@@ -127,6 +127,8 @@ export const ptBR: Translations = {
   dashboardMostPredicted: "Placar Mais Apostado",
   dashboardEachPts: "pts cada",
   dashboardTimesBet: "x apostado",
+  dashboardPredictionsHiddenNote:
+    "Os palpites dos outros jogadores só ficam visíveis após o jogo começar.",
 
   // Rules
   rulesTitle: "📋 Regras do Bolão",

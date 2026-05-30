@@ -26,10 +26,15 @@ export class AuthService {
       email: dto.email,
     });
 
-    const token = this.generateToken(user.id, user.email);
+    const token = this.generateToken(user.id, user.email, user.role);
     return {
       access_token: token,
-      user: { id: user.id, name: user.name, email: user.email },
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     };
   }
 
@@ -39,14 +44,19 @@ export class AuthService {
       throw new UnauthorizedException("Email não cadastrado");
     }
 
-    const token = this.generateToken(user.id, user.email);
+    const token = this.generateToken(user.id, user.email, user.role);
     return {
       access_token: token,
-      user: { id: user.id, name: user.name, email: user.email },
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     };
   }
 
-  private generateToken(userId: string, email: string): string {
-    return this.jwtService.sign({ sub: userId, email });
+  private generateToken(userId: string, email: string, role: string): string {
+    return this.jwtService.sign({ sub: userId, email, role });
   }
 }

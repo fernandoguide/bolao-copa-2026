@@ -10,12 +10,23 @@ import LeaderboardPage from './pages/LeaderboardPage';
 import TeamsPage from './pages/TeamsPage';
 import RulesPage from './pages/RulesPage';
 import DashboardPage from './pages/DashboardPage';
+import AdminPage from './pages/AdminPage';
+import PoolsPage from './pages/PoolsPage';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
     const { signed, loading } = useAuth();
     const { t } = useI18n();
     if (loading) return <div className="p-8 text-center">{t.loading}</div>;
     return signed ? <>{children}</> : <Navigate to="/login" />;
+}
+
+function AdminRoute({ children }: { children: React.ReactNode }) {
+    const { user, signed, loading } = useAuth();
+    const { t } = useI18n();
+    if (loading) return <div className="p-8 text-center">{t.loading}</div>;
+    if (!signed) return <Navigate to="/login" />;
+    if (user?.role !== 'admin') return <Navigate to="/regras" />;
+    return <>{children}</>;
 }
 
 export default function App() {
@@ -45,6 +56,8 @@ export default function App() {
                 <Route path="meus-palpites" element={<MyPredictionsPage />} />
                 <Route path="classificacao" element={<LeaderboardPage />} />
                 <Route path="selecoes" element={<TeamsPage />} />
+                <Route path="boloes" element={<PoolsPage />} />
+                <Route path="admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
             </Route>
         </Routes>
     );

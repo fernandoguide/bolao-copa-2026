@@ -8,6 +8,11 @@ import {
 } from "typeorm";
 import { Prediction } from "../../predictions/entities/prediction.entity";
 
+export enum UserRole {
+  USER = "user",
+  ADMIN = "admin",
+}
+
 @Entity("users")
 export class User {
   @PrimaryGeneratedColumn("uuid")
@@ -18,6 +23,9 @@ export class User {
 
   @Column({ unique: true, length: 255 })
   email: string;
+
+  @Column({ length: 20, default: UserRole.USER })
+  role: UserRole;
 
   @OneToMany(() => Prediction, (prediction) => prediction.user)
   predictions: Prediction[];
