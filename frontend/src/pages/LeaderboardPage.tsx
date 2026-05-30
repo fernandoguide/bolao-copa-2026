@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../services/api';
-import { LeaderboardEntry } from '../types';
+import { LeaderboardEntry, Pool } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../i18n';
 
@@ -9,13 +9,23 @@ export default function LeaderboardPage() {
     const { t } = useI18n();
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
     const [loading, setLoading] = useState(true);
+    const [pools, setPools] = useState<Pool[]>([]);
+    const [selectedPool, setSelectedPool] = useState<string>('all'); // 'all' or pool id
 
     useEffect(() => {
-        api.get<LeaderboardEntry[]>('/leaderboard').then((data) => {
+        api.get<Pool[]>('/pools/my').then(setPools).catch(() => { });
+    }, []);
+
+    useEffect(() => {
+        setLoading(true);
+        const endpoint = selectedPool === 'all'
+            ? '/leaderboard'
+            : `/leaderboard/pool/${selectedPool}`;
+        api.get<LeaderboardEntry[]>(endpoint).then((data) => {
             setLeaderboard(data);
             setLoading(false);
         });
-    }, []);
+    }, [selectedPool]);
 
     if (loading) return <div className="text-center py-12 text-dark-400">{t.leaderboardLoading}</div>;
 
@@ -28,7 +38,24 @@ export default function LeaderboardPage() {
 
     return (
         <div>
-            <h1 className="text-2xl font-bold text-white mb-6">{t.leaderboardTitle}</h1>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <h1 className="text-2xl font-bold text-white">{t.leaderboardTitle}</h1>
+
+                {pools.length > 0 && (
+                    <select
+                        value={selectedPool}
+                        onChange={(e) => setSelectedPool(e.target.value)}
+                        className="bg-dark-800 border border-dark-700 text-white text-sm rounded-xl px-4 py-2 focus:outline-none focus:border-primary-500"
+                    >
+                        <option value="all">🌍 Bolão Livre (Todos)</option>
+                        {pools.map((pool) => (
+                            <option key={pool.id} value={pool.id}>
+                                🔒 {pool.name}
+                            </option>
+                        ))}
+                    </select>
+                )}
+            </div>
 
             {leaderboard.length === 0 ? (
                 <p className="text-dark-500 text-center py-12">{t.leaderboardEmpty}</p>

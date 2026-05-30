@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from "@nestjs/common";
+import { Controller, Get, Param, UseGuards } from "@nestjs/common";
 import { LeaderboardService } from "./leaderboard.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 
@@ -10,5 +10,10 @@ export class LeaderboardController {
   @Get()
   async getLeaderboard() {
     return this.leaderboardService.getLeaderboard();
+  }
+
+  @Get("pool/:poolId")
+  async getLeaderboardByPool(@Param("poolId") poolId: number) {
+    return this.leaderboardService.getLeaderboardByPool(poolId);
   }
 }

@@ -3,7 +3,7 @@ import { Translations } from "./types";
 export const es: Translations = {
   // Common
   loading: "Cargando...",
-  appTitle: "Copa 2026",
+  appTitle: "Copa del Mundo 2026",
   appSubtitle: "Copa del Mundo 2026",
 
   // Nav
