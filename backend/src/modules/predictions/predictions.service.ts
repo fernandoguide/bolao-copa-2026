@@ -62,11 +62,17 @@ export class PredictionsService {
     });
   }
 
-  async findAllFiltered(currentUserId: string): Promise<Prediction[]> {
+  async findAllFiltered(
+    currentUserId: string,
+    role: string
+  ): Promise<Prediction[]> {
     const all = await this.predictionsRepo.find({
       relations: ["user", "match", "match.homeTeam", "match.awayTeam"],
       order: { user_id: "ASC", match: { matchDate: "ASC" } },
     });
+
+    // Admin sees everything
+    if (role === "admin") return all;
 
     const now = new Date();
     return all.filter((pred) => {

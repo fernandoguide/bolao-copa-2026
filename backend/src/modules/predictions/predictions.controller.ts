@@ -24,7 +24,8 @@ export class PredictionsController {
 
   @Get("all")
   async findAll(@Req() req: Request) {
-    return this.predictionsService.findAllFiltered((req as any).user.id);
+    const { id, role } = (req as any).user;
+    return this.predictionsService.findAllFiltered(id, role);
   }
 
   @Get("my")
