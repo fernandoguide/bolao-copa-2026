@@ -52,6 +52,104 @@ function generateBracketId(round: number, position: number): string {
     return `r${round}-p${position}`;
 }
 
+interface MatchResult {
+    homeTeamId: number;
+    awayTeamId: number;
+    homeScore: number;
+    awayScore: number;
+}
+
+function getHeadToHead(teamIds: number[], results: MatchResult[]): Map<number, { points: number; goalDiff: number; goalsFor: number }> {
+    const h2h = new Map<number, { points: number; goalDiff: number; goalsFor: number }>();
+    for (const id of teamIds) {
+        h2h.set(id, { points: 0, goalDiff: 0, goalsFor: 0 });
+    }
+
+    const teamSet = new Set(teamIds);
+    for (const r of results) {
+        if (!teamSet.has(r.homeTeamId) || !teamSet.has(r.awayTeamId)) continue;
+
+        const home = h2h.get(r.homeTeamId)!;
+        const away = h2h.get(r.awayTeamId)!;
+
+        home.goalsFor += r.homeScore;
+        home.goalDiff += r.homeScore - r.awayScore;
+        away.goalsFor += r.awayScore;
+        away.goalDiff += r.awayScore - r.homeScore;
+
+        if (r.homeScore > r.awayScore) {
+            home.points += 3;
+        } else if (r.homeScore < r.awayScore) {
+            away.points += 3;
+        } else {
+            home.points += 1;
+            away.points += 1;
+        }
+    }
+
+    return h2h;
+}
+
+/**
+ * FIFA World Cup tiebreakers:
+ * Step 1 (head-to-head among tied teams):
+ *   1. Points in matches between tied teams
+ *   2. Goal difference in matches between tied teams
+ *   3. Goals scored in matches between tied teams
+ * Step 2 (overall group):
+ *   4. Overall goal difference in all group matches
+ *   5. Overall goals scored in all group matches
+ * Step 3:
+ *   6. FIFA ranking (approximated by team ID / seed order)
+ */
+function sortWithFifaTiebreakers(standings: GroupStanding[], results: MatchResult[]): GroupStanding[] {
+    // Initial sort by points
+    const sorted = [...standings].sort((a, b) => b.points - a.points);
+
+    // Find groups of teams tied on points and apply tiebreakers
+    const final: GroupStanding[] = [];
+    let i = 0;
+    while (i < sorted.length) {
+        let j = i + 1;
+        while (j < sorted.length && sorted[j].points === sorted[i].points) {
+            j++;
+        }
+
+        if (j - i === 1) {
+            // No tie
+            final.push(sorted[i]);
+        } else {
+            // Tied teams: apply head-to-head
+            const tiedTeams = sorted.slice(i, j);
+            const tiedIds = tiedTeams.map((s) => s.team.id);
+            const h2h = getHeadToHead(tiedIds, results);
+
+            tiedTeams.sort((a, b) => {
+                const ah = h2h.get(a.team.id)!;
+                const bh = h2h.get(b.team.id)!;
+
+                // Step 1: Head-to-head
+                if (bh.points !== ah.points) return bh.points - ah.points;
+                if (bh.goalDiff !== ah.goalDiff) return bh.goalDiff - ah.goalDiff;
+                if (bh.goalsFor !== ah.goalsFor) return bh.goalsFor - ah.goalsFor;
+
+                // Step 2: Overall group stats
+                if (b.goalDiff !== a.goalDiff) return b.goalDiff - a.goalDiff;
+                if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
+
+                // Step 3: FIFA ranking (lower ID = higher seed as approximation)
+                return a.team.id - b.team.id;
+            });
+
+            final.push(...tiedTeams);
+        }
+
+        i = j;
+    }
+
+    return final;
+}
+
 function simulateGroupStandings(
     groupMatches: Match[],
     predictions: Prediction[],
@@ -137,71 +235,157 @@ function simulateGroupStandings(
         away.goalDiff = away.goalsFor - away.goalsAgainst;
     }
 
-    return Array.from(standings.values()).sort((a, b) => {
-        if (b.points !== a.points) return b.points - a.points;
-        if (b.goalDiff !== a.goalDiff) return b.goalDiff - a.goalDiff;
-        return b.goalsFor - a.goalsFor;
-    });
-}
+    // Collect match results for head-to-head tiebreaker
+    const results: MatchResult[] = [];
+    for (const match of matchesInGroup) {
+        if (!match.homeTeam || !match.awayTeam) continue;
+        let homeScore: number | null = null;
+        let awayScore: number | null = null;
 
-function getQualifiedTeams(
-    groupMatches: Match[],
-    predictions: Prediction[]
-): { firsts: Team[]; seconds: Team[]; thirds: Team[] } {
-    const firsts: Team[] = [];
-    const seconds: Team[] = [];
-    const allThirds: { team: Team; standing: GroupStanding }[] = [];
+        if (match.played && match.homeScore != null && match.awayScore != null) {
+            homeScore = match.homeScore;
+            awayScore = match.awayScore;
+        } else {
+            const pred = predByMatch.get(match.id);
+            if (pred) {
+                homeScore = pred.homeScore;
+                awayScore = pred.awayScore;
+            }
+        }
 
-    for (const group of GROUPS) {
-        const standings = simulateGroupStandings(groupMatches, predictions, group);
-        if (standings.length >= 1) firsts.push(standings[0].team);
-        if (standings.length >= 2) seconds.push(standings[1].team);
-        if (standings.length >= 3) {
-            allThirds.push({ team: standings[2].team, standing: standings[2] });
+        if (homeScore != null && awayScore != null) {
+            results.push({
+                homeTeamId: match.homeTeam.id,
+                awayTeamId: match.awayTeam.id,
+                homeScore,
+                awayScore,
+            });
         }
     }
 
-    // Best 8 third-place teams
+    return sortWithFifaTiebreakers(Array.from(standings.values()), results);
+}
+
+// ─── FIFA 2026 Official Bracket Seeding ───────────────────────────────────────
+// Based on the official FIFA bracket image.
+// Each R32 match is defined by:
+//   home: "1X" (1st of group X) or "2X" (2nd of group X)
+//   away: same, or "3rd" (filled from best 3rd-place teams)
+
+interface R32Slot {
+    home: string;  // e.g. "1E", "2A"
+    away: string;  // e.g. "3ABCDF", "2B"
+}
+
+// Official FIFA 2026 Round of 32 matchups from the bracket image
+// Left side of bracket (positions 0-7), Right side (positions 8-15)
+const R32_BRACKET: R32Slot[] = [
+    // Left side
+    { home: '1E', away: '3ABCDF' },   // pos 0 (Match 74)
+    { home: '1I', away: '3CDFGH' },   // pos 1 (Match 77)
+    { home: '2A', away: '2B' },        // pos 2 (Match 78)
+    { home: '1F', away: '2C' },        // pos 3 (Match 75)
+    { home: '2K', away: '2L' },        // pos 4 (Match 83)
+    { home: '1H', away: '2J' },        // pos 5 (Match 84)
+    { home: '1D', away: '3BEFIJ' },   // pos 6 (Match 81)
+    { home: '1G', away: '3AEHIJ' },   // pos 7 (Match 82)
+    // Right side
+    { home: '1C', away: '2F' },        // pos 8 (Match 76)
+    { home: '2E', away: '2I' },        // pos 9 (Match 78)
+    { home: '1A', away: '3CEFHI' },   // pos 10 (Match 79)
+    { home: '1L', away: '3EHIJK' },   // pos 11 (Match 80)
+    { home: '1J', away: '2H' },        // pos 12 (Match 86)
+    { home: '2D', away: '2G' },        // pos 13 (Match 88)
+    { home: '1B', away: '3EFGIJ' },   // pos 14 (Match 85)
+    { home: '1K', away: '3DEIJL' },   // pos 15 (Match 87)
+];
+
+function getTeamByPosition(
+    position: string,
+    standings: Record<string, GroupStanding[]>
+): Team | null {
+    const rank = parseInt(position[0]) - 1; // '1' -> 0, '2' -> 1
+    const group = position[1];
+    const groupStandings = standings[group];
+    if (!groupStandings || !groupStandings[rank]) return null;
+    return groupStandings[rank].team;
+}
+
+function assignThirdPlaceTeams(
+    standings: Record<string, GroupStanding[]>
+): Map<string, Team> {
+    // Get all 3rd-place teams with their group and stats
+    const allThirds: { team: Team; group: string; standing: GroupStanding }[] = [];
+    for (const group of GROUPS) {
+        const gs = standings[group];
+        if (gs && gs.length >= 3) {
+            allThirds.push({ team: gs[2].team, group, standing: gs[2] });
+        }
+    }
+
+    // Sort to find best 8 third-place teams
     allThirds.sort((a, b) => {
         if (b.standing.points !== a.standing.points) return b.standing.points - a.standing.points;
         if (b.standing.goalDiff !== a.standing.goalDiff) return b.standing.goalDiff - a.standing.goalDiff;
         return b.standing.goalsFor - a.standing.goalsFor;
     });
 
-    const thirds = allThirds.slice(0, 8).map((t) => t.team);
+    const qualified = allThirds.slice(0, 8);
+    const qualifiedGroups = new Set(qualified.map((q) => q.group));
 
-    return { firsts, seconds, thirds };
+    // For each 3rd-place slot in the bracket, determine which team goes there
+    // Each slot lists possible source groups (e.g., "3ABCDF" means 3rd could come from A, B, C, D, or F)
+    const thirdSlots = R32_BRACKET
+        .map((slot, idx) => ({ idx, away: slot.away }))
+        .filter((s) => s.away.startsWith('3') && s.away.length > 2);
+
+    // Assignment: for each slot, find a matching qualified 3rd that hasn't been used yet
+    const assigned = new Map<string, Team>(); // slot away code -> team
+    const usedGroups = new Set<string>();
+
+    // Sort slots by number of allowed groups (ascending) for better assignment
+    const sortedSlots = [...thirdSlots].sort(
+        (a, b) => a.away.length - b.away.length
+    );
+
+    for (const slot of sortedSlots) {
+        const allowedGroups = slot.away.slice(1).split('');
+        // Find best available 3rd-place team from allowed groups
+        for (const q of qualified) {
+            if (usedGroups.has(q.group)) continue;
+            if (!allowedGroups.includes(q.group)) continue;
+            if (!qualifiedGroups.has(q.group)) continue;
+            assigned.set(slot.away, q.team);
+            usedGroups.add(q.group);
+            break;
+        }
+    }
+
+    return assigned;
 }
 
-// Build R32 seeding: 1sts vs 3rds, remaining slots filled by 2nds
-function seedR32(firsts: Team[], seconds: Team[], thirds: Team[]): { home: Team | null; away: Team | null }[] {
-    const matches: { home: Team | null; away: Team | null }[] = [];
+function seedR32(standings: Record<string, GroupStanding[]>): { home: Team | null; away: Team | null }[] {
+    const thirdAssignments = assignThirdPlaceTeams(standings);
 
-    // First 8 matches: 1st place (A-H) vs best 3rd place teams
-    for (let i = 0; i < 8; i++) {
-        matches.push({
-            home: firsts[i] || null,
-            away: thirds[i] || null,
-        });
-    }
+    return R32_BRACKET.map((slot) => {
+        // Resolve home team
+        let home: Team | null = null;
+        if (slot.home.length === 2) {
+            home = getTeamByPosition(slot.home, standings);
+        }
 
-    // Next 4 matches: 1st place (I-L) vs 2nd place (A-D)
-    for (let i = 0; i < 4; i++) {
-        matches.push({
-            home: firsts[8 + i] || null,
-            away: seconds[i] || null,
-        });
-    }
+        // Resolve away team
+        let away: Team | null = null;
+        if (slot.away.length === 2) {
+            // Direct position (e.g., "2B")
+            away = getTeamByPosition(slot.away, standings);
+        } else if (slot.away.startsWith('3')) {
+            // 3rd place assignment
+            away = thirdAssignments.get(slot.away) || null;
+        }
 
-    // Last 4 matches: 2nd vs 2nd (cross-group)
-    for (let i = 0; i < 4; i++) {
-        matches.push({
-            home: seconds[4 + i] || null,
-            away: seconds[8 + i] || null,
-        });
-    }
-
-    return matches;
+        return { home, away };
+    });
 }
 
 function initializeBracket(
@@ -455,11 +639,8 @@ export default function BracketPage() {
                 }
                 setGroupStandings(standings);
 
-                // Get qualified teams from simulation
-                const { firsts, seconds, thirds } = getQualifiedTeams(groupMatches, groupPredictions);
-
-                // Seed R32 bracket
-                const seeding = seedR32(firsts, seconds, thirds);
+                // Seed R32 bracket using official FIFA 2026 bracket structure
+                const seeding = seedR32(standings);
 
                 // Initialize bracket with real knockout matches + simulated seeding
                 const initial = initializeBracket(knockoutMatches, seeding);
