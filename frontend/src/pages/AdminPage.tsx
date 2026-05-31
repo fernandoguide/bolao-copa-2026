@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { Match } from '../types';
 import { useI18n } from '../i18n';
+import { isValidScore } from '../utils/security';
 
 export default function AdminPage() {
     const { t } = useI18n();
@@ -37,6 +38,11 @@ export default function AdminPage() {
     async function saveResult(matchId: number) {
         const score = scores[matchId];
         if (!score || score.home === '' || score.away === '') return;
+
+        if (!isValidScore(score.home) || !isValidScore(score.away)) {
+            setMessage({ type: 'error', text: 'Score inválido (0-99, números inteiros)' });
+            return;
+        }
 
         setSaving(matchId);
         setMessage(null);

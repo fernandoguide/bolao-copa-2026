@@ -2,6 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { LeaderboardService } from "./leaderboard.service";
 import { Prediction } from "../predictions/entities/prediction.entity";
+import { PoolMember } from "../pools/entities/pool-member.entity";
 
 describe("LeaderboardService", () => {
   let service: LeaderboardService;
@@ -13,6 +14,7 @@ describe("LeaderboardService", () => {
     groupBy: jest.fn().mockReturnThis(),
     addGroupBy: jest.fn().mockReturnThis(),
     orderBy: jest.fn().mockReturnThis(),
+    where: jest.fn().mockReturnThis(),
     getRawMany: jest.fn(),
   };
 
@@ -20,11 +22,16 @@ describe("LeaderboardService", () => {
     createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder),
   };
 
+  const poolMembersRepo = {
+    find: jest.fn().mockResolvedValue([]),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         LeaderboardService,
         { provide: getRepositoryToken(Prediction), useValue: repo },
+        { provide: getRepositoryToken(PoolMember), useValue: poolMembersRepo },
       ],
     }).compile();
 

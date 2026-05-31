@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../i18n';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import { isValidEmail, authLimiter } from '../utils/security';
 
 export default function LoginPage() {
     const { login } = useAuth();
@@ -15,9 +16,21 @@ export default function LoginPage() {
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
         setError('');
+
+        if (!isValidEmail(email)) {
+            setError('Email inválido');
+            return;
+        }
+
+        if (!authLimiter.canProceed()) {
+            const wait = Math.ceil(authLimiter.getTimeUntilNext() / 1000);
+            setError(`Muitas tentativas. Aguarde ${wait}s.`);
+            return;
+        }
+
         setLoading(true);
         try {
-            await login(email);
+            await login(email.trim().toLowerCase());
             navigate('/regras');
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : t.loginError);

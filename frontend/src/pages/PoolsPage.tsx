@@ -3,6 +3,7 @@ import { api } from '../services/api';
 import { Pool } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../i18n';
+import { isValidPoolName, isValidInviteCode, sanitizeText } from '../utils/security';
 
 export default function PoolsPage() {
     const { t } = useI18n();
@@ -33,9 +34,14 @@ export default function PoolsPage() {
 
     async function createPool() {
         if (!newPoolName.trim()) return;
+        const cleanName = sanitizeText(newPoolName);
+        if (!isValidPoolName(cleanName)) {
+            setMessage({ type: 'error', text: 'Nome inválido (3-100 caracteres, sem caracteres especiais)' });
+            return;
+        }
         setMessage(null);
         try {
-            await api.post('/pools', { name: newPoolName.trim() });
+            await api.post('/pools', { name: cleanName });
             setNewPoolName('');
             setShowCreate(false);
             setMessage({ type: 'success', text: 'Bolão criado com sucesso!' });
@@ -47,9 +53,14 @@ export default function PoolsPage() {
 
     async function joinPool() {
         if (!joinCode.trim()) return;
+        const cleanCode = joinCode.trim();
+        if (!isValidInviteCode(cleanCode)) {
+            setMessage({ type: 'error', text: 'Código inválido (apenas letras, números e hífens)' });
+            return;
+        }
         setMessage(null);
         try {
-            await api.post('/pools/join', { inviteCode: joinCode.trim() });
+            await api.post('/pools/join', { inviteCode: cleanCode });
             setJoinCode('');
             setShowJoin(false);
             setMessage({ type: 'success', text: 'Você entrou no bolão!' });

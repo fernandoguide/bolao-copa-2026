@@ -10,7 +10,8 @@ describe("PredictionsController", () => {
     predictionsService = {
       create: jest.fn(),
       findByUser: jest.fn(),
-      findByMatch: jest.fn(),
+      findByMatchFiltered: jest.fn(),
+      findAllFiltered: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -43,11 +44,17 @@ describe("PredictionsController", () => {
     expect(result).toEqual(preds);
   });
 
-  it("GET /predictions/match/:matchId deve retornar palpites da partida", async () => {
+  it("GET /predictions/match/:matchId deve retornar palpites filtrados", async () => {
+    const req = { user: { id: "user-1", role: "user" } } as any;
     const preds = [{ id: 1, match_id: 5 }];
-    predictionsService.findByMatch.mockResolvedValue(preds);
+    predictionsService.findByMatchFiltered.mockResolvedValue(preds);
 
-    const result = await controller.findByMatch(5);
+    const result = await controller.findByMatch(5, req);
     expect(result).toEqual(preds);
+    expect(predictionsService.findByMatchFiltered).toHaveBeenCalledWith(
+      5,
+      "user-1",
+      "user"
+    );
   });
 });

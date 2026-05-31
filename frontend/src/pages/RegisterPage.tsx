@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../i18n';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import { isValidEmail, isValidName, sanitizeText, authLimiter } from '../utils/security';
 
 export default function RegisterPage() {
     const { register } = useAuth();
@@ -16,9 +17,28 @@ export default function RegisterPage() {
     async function handleSubmit(e: FormEvent) {
         e.preventDefault();
         setError('');
+
+        const cleanName = sanitizeText(name);
+
+        if (!isValidName(cleanName)) {
+            setError('Nome inválido (2-100 caracteres, apenas letras e espaços)');
+            return;
+        }
+
+        if (!isValidEmail(email)) {
+            setError('Email inválido');
+            return;
+        }
+
+        if (!authLimiter.canProceed()) {
+            const wait = Math.ceil(authLimiter.getTimeUntilNext() / 1000);
+            setError(`Muitas tentativas. Aguarde ${wait}s.`);
+            return;
+        }
+
         setLoading(true);
         try {
-            await register(name, email);
+            await register(cleanName, email.trim().toLowerCase());
             navigate('/regras');
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : t.registerError);

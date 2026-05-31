@@ -6,6 +6,7 @@ import {
   Param,
   UseGuards,
   Req,
+  ParseIntPipe,
 } from "@nestjs/common";
 import { Request } from "express";
 import { PredictionsService } from "./predictions.service";
@@ -34,7 +35,11 @@ export class PredictionsController {
   }
 
   @Get("match/:matchId")
-  async findByMatch(@Param("matchId") matchId: number) {
-    return this.predictionsService.findByMatch(matchId);
+  async findByMatch(
+    @Param("matchId", ParseIntPipe) matchId: number,
+    @Req() req: Request
+  ) {
+    const { id, role } = (req as any).user;
+    return this.predictionsService.findByMatchFiltered(matchId, id, role);
   }
 }

@@ -98,6 +98,28 @@ export class PredictionsService {
     });
   }
 
+  async findByMatchFiltered(
+    matchId: number,
+    currentUserId: string,
+    role: string
+  ): Promise<Prediction[]> {
+    const match = await this.matchesService.findById(matchId);
+    const predictions = await this.predictionsRepo.find({
+      where: { match_id: matchId },
+      relations: ["user"],
+    });
+
+    // Admin vê tudo
+    if (role === "admin") return predictions;
+
+    const now = new Date();
+    // Se o jogo já começou, todos podem ver os palpites
+    if (new Date(match.matchDate) <= now) return predictions;
+
+    // Antes do jogo, só mostra o próprio palpite
+    return predictions.filter((pred) => pred.user_id === currentUserId);
+  }
+
   async calculatePoints(matchId: number): Promise<void> {
     const match = await this.matchesService.findById(matchId);
     if (!match.played) return;

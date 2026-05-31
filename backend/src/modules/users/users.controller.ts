@@ -2,6 +2,7 @@ import { Controller, Get, UseGuards, Req } from "@nestjs/common";
 import { Request } from "express";
 import { UsersService } from "./users.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import { AdminGuard } from "../auth/guards/admin.guard";
 
 @Controller("users")
 export class UsersController {
@@ -14,7 +15,7 @@ export class UsersController {
     return user;
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Get()
   async findAll() {
     return this.usersService.findAll();

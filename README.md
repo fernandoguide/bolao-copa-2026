@@ -23,13 +23,14 @@ bolao-copa-2026/
 
 ### Stack
 
-| Camada   | Tecnologia                                                     |
-| -------- | -------------------------------------------------------------- |
-| Backend  | NestJS 10, TypeORM 0.3, Passport JWT                           |
-| Frontend | React 18, Vite 5, TypeScript 5, Tailwind CSS 3, React Router 6 |
-| Banco    | PostgreSQL 16                                                  |
-| Infra    | Docker multi-stage, Docker Compose, Nginx                      |
-| Testes   | Jest 29, ts-jest, @nestjs/testing (49 testes)                  |
+| Camada    | Tecnologia                                                     |
+| --------- | -------------------------------------------------------------- |
+| Backend   | NestJS 10, TypeORM 0.3, Passport JWT                           |
+| Frontend  | React 18, Vite 5, TypeScript 5, Tailwind CSS 3, React Router 6 |
+| Banco     | PostgreSQL 16                                                  |
+| Infra     | Docker multi-stage, Docker Compose, Nginx                      |
+| Testes    | Jest 29 (backend, 95 testes), Vitest (frontend, 66 testes)     |
+| Segurança | Helmet, CORS whitelist, Throttler, ValidationPipe, JWT         |
 
 ---
 
@@ -158,8 +159,11 @@ npm run seed
 | Jogos         | `/matches`     | Lista de partidas com placares            |
 | Meus Palpites | `/predictions` | Registrar/editar palpites por jogo        |
 | Ranking       | `/leaderboard` | Tabela de classificação dos participantes |
+| Bolões        | `/pools`       | Criar/entrar em bolões privados           |
 | Seleções      | `/teams`       | Seleções organizadas por grupo            |
 | Regras        | `/rules`       | Explicação do sistema de pontuação        |
+| Admin         | `/admin`       | Registrar resultados (apenas admin)       |
+| Dashboard     | `/dashboard`   | Painel inicial do usuário                 |
 
 ---
 
@@ -209,9 +213,20 @@ npm run seed
 
 ### Leaderboard (autenticado)
 
-| Método | Rota               | Descrição     |
-| ------ | ------------------ | ------------- |
-| GET    | `/api/leaderboard` | Ranking geral |
+| Método | Rota                            | Descrição           |
+| ------ | ------------------------------- | ------------------- |
+| GET    | `/api/leaderboard`              | Ranking geral       |
+| GET    | `/api/leaderboard/pool/:poolId` | Ranking de um bolão |
+
+### Pools (autenticado)
+
+| Método | Rota              | Descrição             |
+| ------ | ----------------- | --------------------- |
+| POST   | `/api/pools`      | Criar bolão           |
+| GET    | `/api/pools`      | Listar meus bolões    |
+| POST   | `/api/pools/join` | Entrar em um bolão    |
+| GET    | `/api/pools/:id`  | Detalhe de um bolão   |
+| DELETE | `/api/pools/:id`  | Remover bolão (admin) |
 
 ---
 
@@ -299,7 +314,7 @@ Todos os horários exibidos em **GMT-3 (América/São_Paulo)**.
 | `npm run start:dev`                                 | Inicia com hot-reload            |
 | `npm run build`                                     | Compila para produção            |
 | `npm run start:prod`                                | Executa build de produção        |
-| `npm run test`                                      | Roda todos os testes (49 testes) |
+| `npm run test`                                      | Roda todos os testes (95 testes) |
 | `npm run test:cov`                                  | Testes com cobertura             |
 | `npm run migration:generate -- src/migrations/Nome` | Gera migration                   |
 | `npm run migration:run`                             | Aplica migrations pendentes      |
@@ -309,11 +324,12 @@ Todos os horários exibidos em **GMT-3 (América/São_Paulo)**.
 
 ### Frontend
 
-| Script            | Descrição              |
-| ----------------- | ---------------------- |
-| `npm run dev`     | Dev server com HMR     |
-| `npm run build`   | Build de produção      |
-| `npm run preview` | Preview do build local |
+| Script            | Descrição                         |
+| ----------------- | --------------------------------- |
+| `npm run dev`     | Dev server com HMR                |
+| `npm run build`   | Build de produção                 |
+| `npm run preview` | Preview do build local            |
+| `npx vitest run`  | Rodar todos os testes (66 testes) |
 
 ---
 
@@ -336,19 +352,48 @@ Ambos backend e frontend usam **Dockerfile multi-stage**:
 
 ---
 
+## 🔒 Segurança
+
+A aplicação implementa múltiplas camadas de proteção seguindo as recomendações OWASP:
+
+### Backend
+
+| Proteção                   | Implementação                                                                 |
+| -------------------------- | ----------------------------------------------------------------------------- |
+| Rate Limiting              | `@nestjs/throttler` — global (60 req/min), login (10/5min), registro (5/5min) |
+| Headers HTTP               | `helmet()` — CSP, X-Frame-Options, HSTS etc.                                  |
+| CORS                       | Whitelist com validação por callback                                          |
+| Validação de entrada       | `class-validator` em todos os DTOs (max length, regex, range)                 |
+| Proteção contra enumeração | Mensagem genérica "Credenciais inválidas" no login                            |
+| Autorização                | Guards + verificação de role em endpoints sensíveis                           |
+| ParseIntPipe               | Em todos os params numéricos para rejeitar payloads maliciosos                |
+| SQL Injection              | TypeORM com queries parametrizadas                                            |
+
+### Frontend
+
+| Proteção              | Implementação                                                     |
+| --------------------- | ----------------------------------------------------------------- |
+| Sanitização XSS       | Remoção de tags HTML, `javascript:`, event handlers               |
+| Validação client-side | Email, nome, scores, pool name, invite code                       |
+| Rate Limiter client   | Bloqueio de submissões excessivas (auth: 5/60s, palpites: 30/60s) |
+| JWT validation        | Formato verificado antes de enviar no header                      |
+| Auto-logout           | Remoção de token + redirect no 401                                |
+| Tratamento 429        | Mensagem amigável ao usuário                                      |
+
+---
+
 ## 🧪 Testes
+
+### Backend (95 testes — 15 suítes)
 
 ```bash
 cd backend
 
-# Rodar todos os 50 testes
-npm test
+# Rodar todos os testes
+CI=true npx jest --no-coverage --forceExit
 
 # Com cobertura
 npm run test:cov
-
-# Watch mode
-npm run test:watch
 ```
 
 **Suítes de teste:**
@@ -359,6 +404,30 @@ npm run test:watch
 - `matches.service.spec.ts` / `matches.controller.spec.ts`
 - `predictions.service.spec.ts` / `predictions.controller.spec.ts`
 - `leaderboard.service.spec.ts` / `leaderboard.controller.spec.ts`
+- `auth.security.spec.ts` — SQL injection, XSS, rate limiting, data exposure
+- `predictions.security.spec.ts` — input validation, authorization
+- `matches.security.spec.ts` — param/stage/result validation
+- `pools.security.spec.ts` — pool name, invite code, ParseIntPipe
+
+### Frontend (66 testes — 5 suítes)
+
+```bash
+cd frontend
+
+# Rodar todos os testes
+npx vitest run
+
+# Watch mode
+npx vitest
+```
+
+**Suítes de teste:**
+
+- `security.test.ts` — sanitização, validação, rate limiter (42 testes)
+- `api.security.test.ts` — JWT, 429, 401, headers (6 testes)
+- `translations.test.ts` — i18n completude
+- `LanguageSwitcher.test.tsx` — troca de idioma
+- `i18n.test.tsx` — integração i18n
 
 ---
 

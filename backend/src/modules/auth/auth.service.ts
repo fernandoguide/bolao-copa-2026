@@ -41,7 +41,7 @@ export class AuthService {
   async login(dto: LoginDto) {
     const user = await this.usersService.findByEmail(dto.email);
     if (!user) {
-      throw new UnauthorizedException("Email não cadastrado");
+      throw new UnauthorizedException("Credenciais inválidas");
     }
 
     const token = this.generateToken(user.id, user.email, user.role);

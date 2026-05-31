@@ -3,6 +3,7 @@ import { api } from '../services/api';
 import { Match, Prediction } from '../types';
 import { getFlagUrl } from '../utils/flags';
 import { useI18n } from '../i18n';
+import { isValidScore, predictionLimiter } from '../utils/security';
 
 export default function MatchesPage() {
     const { t, locale } = useI18n();
@@ -46,8 +47,7 @@ export default function MatchesPage() {
     }, []);
 
     function handleScoreChange(matchId: number, side: 'home' | 'away', value: string) {
-        const num = Number(value);
-        if (value !== '' && (num < 0 || num > 99)) {
+        if (!isValidScore(value)) {
             setToast(t.matchesScoreWarning);
             setTimeout(() => setToast(''), 3000);
             return;
@@ -70,6 +70,11 @@ export default function MatchesPage() {
     }
 
     async function autoSave(matchId: number, home: string, away: string) {
+        if (!predictionLimiter.canProceed()) {
+            setMessage('Aguarde um momento antes de salvar outro palpite.');
+            setTimeout(() => setMessage(''), 3000);
+            return;
+        }
         setSaving(matchId);
         setMessage('');
         try {

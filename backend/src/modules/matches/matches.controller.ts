@@ -1,10 +1,21 @@
-import { Controller, Get, Param, Patch, Body, UseGuards } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Body,
+  UseGuards,
+  ParseIntPipe,
+  BadRequestException,
+} from "@nestjs/common";
 import { MatchesService } from "./matches.service";
 import { MatchStage } from "./entities/match.entity";
 import { UpdateResultDto } from "./dto/update-result.dto";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { AdminGuard } from "../auth/guards/admin.guard";
 import { PredictionsService } from "../predictions/predictions.service";
+
+const VALID_STAGES = Object.values(MatchStage);
 
 @Controller("matches")
 @UseGuards(JwtAuthGuard)
@@ -25,18 +36,27 @@ export class MatchesController {
   }
 
   @Get("stage/:stage")
-  async findByStage(@Param("stage") stage: MatchStage) {
-    return this.matchesService.findByStage(stage);
+  async findByStage(@Param("stage") stage: string) {
+    const lowerStage = stage.toLowerCase() as MatchStage;
+    if (!VALID_STAGES.includes(lowerStage)) {
+      throw new BadRequestException(
+        `Fase inválida. Valores permitidos: ${VALID_STAGES.join(", ")}`
+      );
+    }
+    return this.matchesService.findByStage(lowerStage);
   }
 
   @Get(":id")
-  async findOne(@Param("id") id: number) {
+  async findOne(@Param("id", ParseIntPipe) id: number) {
     return this.matchesService.findById(id);
   }
 
   @Patch(":id/result")
   @UseGuards(AdminGuard)
-  async updateResult(@Param("id") id: number, @Body() dto: UpdateResultDto) {
+  async updateResult(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() dto: UpdateResultDto
+  ) {
     const match = await this.matchesService.updateResult(
       id,
       dto.homeScore,
