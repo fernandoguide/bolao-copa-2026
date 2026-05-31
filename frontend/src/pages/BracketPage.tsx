@@ -418,20 +418,24 @@ function initializeBracket(
             let awayScore = '';
             let winner: Team | null = null;
 
-            if (realMatch) {
-                homeTeam = realMatch.homeTeam;
-                awayTeam = realMatch.awayTeam;
-                if (realMatch.homeScore != null) homeScore = String(realMatch.homeScore);
-                if (realMatch.awayScore != null) awayScore = String(realMatch.awayScore);
+            // Only use realMatch if it has actual teams assigned (admin-defined)
+            const realHasTeams = realMatch && (realMatch.homeTeam != null || realMatch.awayTeam != null);
 
-                if (realMatch.played && realMatch.homeScore != null && realMatch.awayScore != null) {
-                    winner = realMatch.homeScore > realMatch.awayScore
-                        ? realMatch.homeTeam
-                        : realMatch.homeScore < realMatch.awayScore
-                            ? realMatch.awayTeam
+            if (realHasTeams) {
+                homeTeam = realMatch!.homeTeam;
+                awayTeam = realMatch!.awayTeam;
+                if (realMatch!.homeScore != null) homeScore = String(realMatch!.homeScore);
+                if (realMatch!.awayScore != null) awayScore = String(realMatch!.awayScore);
+
+                if (realMatch!.played && realMatch!.homeScore != null && realMatch!.awayScore != null) {
+                    winner = realMatch!.homeScore > realMatch!.awayScore
+                        ? realMatch!.homeTeam
+                        : realMatch!.homeScore < realMatch!.awayScore
+                            ? realMatch!.awayTeam
                             : null;
                 }
             } else if (roundIdx === 0 && qualifiedSeeding[pos]) {
+                // Use simulated seeding for R32 when no real teams are set
                 homeTeam = qualifiedSeeding[pos].home;
                 awayTeam = qualifiedSeeding[pos].away;
             }
