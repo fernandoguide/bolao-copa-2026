@@ -159,7 +159,7 @@ export interface Translations {
   rulesPoints: string;
   rulesExample: string;
 
-  // Bracket
+  // Bracket / Simulator
   navBracket: string;
   bracketTitle: string;
   bracketReset: string;
@@ -181,4 +181,10 @@ export interface Translations {
   bracketHideGroups: string;
   bracketShowGroups: string;
   bracketLocked: string;
+
+  // Knockout (real results on TeamsPage)
+  teamsKnockoutTitle: string;
+  teamsKnockoutEmpty: string;
+  teamsKnockoutShowBracket: string;
+  teamsKnockoutHideBracket: string;
 }

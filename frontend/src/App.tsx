@@ -58,7 +58,7 @@ export default function App() {
                 <Route path="classificacao" element={<LeaderboardPage />} />
                 <Route path="selecoes" element={<TeamsPage />} />
                 <Route path="boloes" element={<PoolsPage />} />
-                <Route path="bracket" element={<BracketPage />} />
+                <Route path="simulador" element={<BracketPage />} />
                 <Route path="admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
             </Route>
         </Routes>

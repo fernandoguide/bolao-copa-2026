@@ -18,7 +18,7 @@ export default function Header() {
         { path: '/classificacao', label: t.navRanking },
         { path: '/selecoes', label: t.navGroups },
         { path: '/boloes', label: '🎲 Bolões' },
-        { path: '/bracket', label: t.navBracket || '🏆 Bracket' },
+        { path: '/simulador', label: t.navBracket },
         ...(user?.role === 'admin' ? [{ path: '/admin', label: '⚙️ Admin' }] : []),
     ];
 

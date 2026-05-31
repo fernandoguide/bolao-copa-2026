@@ -180,9 +180,9 @@ export const es: Translations = {
   rulesPoints: "Puntos",
   rulesExample: "Ejemplo",
 
-  // Bracket
-  navBracket: "🏆 Bracket",
-  bracketTitle: "Simulador de Bracket",
+  // Bracket / Simulator
+  navBracket: "🎯 Simulador",
+  bracketTitle: "Simulador de Eliminatorias",
   bracketReset: "Resetar",
   bracketInstruction:
     "Haz clic en el equipo ganador o completa los marcadores para avanzar en los brackets.",
@@ -196,7 +196,7 @@ export const es: Translations = {
   bracketPending: "Pendiente",
   bracketTBD: "Por definir",
   bracketSimInfo:
-    "Los grupos se simulan en base a tus pronósticos. El resultado oficial lo define únicamente el Admin.",
+    "Las eliminatorias se simulan en base a tus pronósticos. Ve a Grupos para ver los resultados reales del Admin.",
   bracketNoPredictions:
     "⚠️ Aún no tienes pronósticos para la fase de grupos. ¡Haz tus pronósticos para ver la simulación!",
   bracketGroupStage: "📊 Clasificación de Grupos (Simulación)",
@@ -205,4 +205,10 @@ export const es: Translations = {
   bracketHideGroups: "Ocultar Grupos",
   bracketShowGroups: "Ver Grupos",
   bracketLocked: "Resultado oficial (Admin)",
+
+  // Knockout (real results on TeamsPage)
+  teamsKnockoutTitle: "⚔️ Eliminatorias",
+  teamsKnockoutEmpty: "No hay partidos de eliminatorias definidos aún.",
+  teamsKnockoutShowBracket: "Ver Eliminatorias",
+  teamsKnockoutHideBracket: "Ocultar Eliminatorias",
 };

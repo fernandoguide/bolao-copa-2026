@@ -179,9 +179,9 @@ export const ptBR: Translations = {
   rulesPoints: "Pontos",
   rulesExample: "Exemplo",
 
-  // Bracket
-  navBracket: "🏆 Bracket",
-  bracketTitle: "Simulador de Bracket",
+  // Bracket / Simulator
+  navBracket: "🎯 Simulador",
+  bracketTitle: "Simulador de Mata-mata",
   bracketReset: "Resetar",
   bracketInstruction:
     "Clique no time vencedor ou preencha os placares para avançar nas brackets.",
@@ -195,7 +195,7 @@ export const ptBR: Translations = {
   bracketPending: "Pendente",
   bracketTBD: "A definir",
   bracketSimInfo:
-    "Os grupos são simulados com base nos seus palpites. O resultado oficial é definido apenas pelo Admin.",
+    "O mata-mata é simulado com base nos seus palpites. Vá em Grupos para ver os resultados reais do Admin.",
   bracketNoPredictions:
     "⚠️ Você ainda não tem palpites na fase de grupos. Faça seus palpites para ver a simulação!",
   bracketGroupStage: "📊 Classificação dos Grupos (Simulação)",
@@ -204,4 +204,10 @@ export const ptBR: Translations = {
   bracketHideGroups: "Esconder Grupos",
   bracketShowGroups: "Ver Grupos",
   bracketLocked: "Resultado oficial (Admin)",
+
+  // Knockout (real results on TeamsPage)
+  teamsKnockoutTitle: "⚔️ Mata-mata",
+  teamsKnockoutEmpty: "Nenhum jogo do mata-mata definido ainda.",
+  teamsKnockoutShowBracket: "Ver Mata-mata",
+  teamsKnockoutHideBracket: "Esconder Mata-mata",
 };

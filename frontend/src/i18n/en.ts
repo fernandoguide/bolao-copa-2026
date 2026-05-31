@@ -179,9 +179,9 @@ export const en: Translations = {
   rulesPoints: "Points",
   rulesExample: "Example",
 
-  // Bracket
-  navBracket: "🏆 Bracket",
-  bracketTitle: "Bracket Simulator",
+  // Bracket / Simulator
+  navBracket: "🎯 Simulator",
+  bracketTitle: "Playoffs Simulator",
   bracketReset: "Reset",
   bracketInstruction:
     "Click on the winning team or fill in the scores to advance through the brackets.",
@@ -195,7 +195,7 @@ export const en: Translations = {
   bracketPending: "Pending",
   bracketTBD: "TBD",
   bracketSimInfo:
-    "Groups are simulated based on your predictions. Official results are defined by the Admin only.",
+    "Playoffs are simulated based on your predictions. Go to Groups to see real Admin results.",
   bracketNoPredictions:
     "⚠️ You don't have predictions for the group stage yet. Make your predictions to see the simulation!",
   bracketGroupStage: "📊 Group Standings (Simulation)",
@@ -204,4 +204,10 @@ export const en: Translations = {
   bracketHideGroups: "Hide Groups",
   bracketShowGroups: "Show Groups",
   bracketLocked: "Official result (Admin)",
+
+  // Knockout (real results on TeamsPage)
+  teamsKnockoutTitle: "⚔️ Playoffs",
+  teamsKnockoutEmpty: "No playoff matches defined yet.",
+  teamsKnockoutShowBracket: "Show Playoffs",
+  teamsKnockoutHideBracket: "Hide Playoffs",
 };
