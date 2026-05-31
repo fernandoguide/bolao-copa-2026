@@ -178,4 +178,20 @@ export const en: Translations = {
   rulesResult: "Result",
   rulesPoints: "Points",
   rulesExample: "Example",
+
+  // Bracket
+  navBracket: "🏆 Bracket",
+  bracketTitle: "Bracket Simulator",
+  bracketReset: "Reset",
+  bracketInstruction:
+    "Click on the winning team or fill in the scores to advance through the brackets.",
+  bracketChampion: "Champion!",
+  bracketRound32: "Round of 32",
+  bracketRound16: "Round of 16",
+  bracketQuarters: "Quarters",
+  bracketSemis: "Semis",
+  bracketFinal: "Final",
+  bracketWinner: "Winner",
+  bracketPending: "Pending",
+  bracketTBD: "TBD",
 };

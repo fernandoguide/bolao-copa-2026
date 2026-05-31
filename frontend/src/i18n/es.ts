@@ -179,4 +179,20 @@ export const es: Translations = {
   rulesResult: "Resultado",
   rulesPoints: "Puntos",
   rulesExample: "Ejemplo",
+
+  // Bracket
+  navBracket: "🏆 Bracket",
+  bracketTitle: "Simulador de Bracket",
+  bracketReset: "Resetar",
+  bracketInstruction:
+    "Haz clic en el equipo ganador o completa los marcadores para avanzar en los brackets.",
+  bracketChampion: "¡Campeón!",
+  bracketRound32: "32avos",
+  bracketRound16: "Octavos",
+  bracketQuarters: "Cuartos",
+  bracketSemis: "Semis",
+  bracketFinal: "Final",
+  bracketWinner: "Ganador",
+  bracketPending: "Pendiente",
+  bracketTBD: "Por definir",
 };

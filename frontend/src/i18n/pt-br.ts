@@ -178,4 +178,20 @@ export const ptBR: Translations = {
   rulesResult: "Resultado",
   rulesPoints: "Pontos",
   rulesExample: "Exemplo",
+
+  // Bracket
+  navBracket: "🏆 Bracket",
+  bracketTitle: "Simulador de Bracket",
+  bracketReset: "Resetar",
+  bracketInstruction:
+    "Clique no time vencedor ou preencha os placares para avançar nas brackets.",
+  bracketChampion: "Campeão!",
+  bracketRound32: "32avos",
+  bracketRound16: "Oitavas",
+  bracketQuarters: "Quartas",
+  bracketSemis: "Semis",
+  bracketFinal: "Final",
+  bracketWinner: "Vencedor",
+  bracketPending: "Pendente",
+  bracketTBD: "A definir",
 };

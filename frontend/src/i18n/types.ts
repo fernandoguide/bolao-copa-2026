@@ -158,4 +158,19 @@ export interface Translations {
   rulesResult: string;
   rulesPoints: string;
   rulesExample: string;
+
+  // Bracket
+  navBracket: string;
+  bracketTitle: string;
+  bracketReset: string;
+  bracketInstruction: string;
+  bracketChampion: string;
+  bracketRound32: string;
+  bracketRound16: string;
+  bracketQuarters: string;
+  bracketSemis: string;
+  bracketFinal: string;
+  bracketWinner: string;
+  bracketPending: string;
+  bracketTBD: string;
 }

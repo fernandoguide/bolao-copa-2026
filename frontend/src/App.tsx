@@ -12,6 +12,7 @@ import RulesPage from './pages/RulesPage';
 import DashboardPage from './pages/DashboardPage';
 import AdminPage from './pages/AdminPage';
 import PoolsPage from './pages/PoolsPage';
+import BracketPage from './pages/BracketPage';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
     const { signed, loading } = useAuth();
@@ -57,6 +58,7 @@ export default function App() {
                 <Route path="classificacao" element={<LeaderboardPage />} />
                 <Route path="selecoes" element={<TeamsPage />} />
                 <Route path="boloes" element={<PoolsPage />} />
+                <Route path="bracket" element={<BracketPage />} />
                 <Route path="admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
             </Route>
         </Routes>
