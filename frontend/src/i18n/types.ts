@@ -173,4 +173,12 @@ export interface Translations {
   bracketWinner: string;
   bracketPending: string;
   bracketTBD: string;
+  bracketSimInfo: string;
+  bracketNoPredictions: string;
+  bracketGroupStage: string;
+  bracketQualified: string;
+  bracketThirdPlace: string;
+  bracketHideGroups: string;
+  bracketShowGroups: string;
+  bracketLocked: string;
 }

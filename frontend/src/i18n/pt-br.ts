@@ -194,4 +194,14 @@ export const ptBR: Translations = {
   bracketWinner: "Vencedor",
   bracketPending: "Pendente",
   bracketTBD: "A definir",
+  bracketSimInfo:
+    "Os grupos são simulados com base nos seus palpites. O resultado oficial é definido apenas pelo Admin.",
+  bracketNoPredictions:
+    "⚠️ Você ainda não tem palpites na fase de grupos. Faça seus palpites para ver a simulação!",
+  bracketGroupStage: "📊 Classificação dos Grupos (Simulação)",
+  bracketQualified: "Classificado direto (1º/2º)",
+  bracketThirdPlace: "Possível 3º classificado",
+  bracketHideGroups: "Esconder Grupos",
+  bracketShowGroups: "Ver Grupos",
+  bracketLocked: "Resultado oficial (Admin)",
 };

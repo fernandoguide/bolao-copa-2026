@@ -195,4 +195,14 @@ export const es: Translations = {
   bracketWinner: "Ganador",
   bracketPending: "Pendiente",
   bracketTBD: "Por definir",
+  bracketSimInfo:
+    "Los grupos se simulan en base a tus pronósticos. El resultado oficial lo define únicamente el Admin.",
+  bracketNoPredictions:
+    "⚠️ Aún no tienes pronósticos para la fase de grupos. ¡Haz tus pronósticos para ver la simulación!",
+  bracketGroupStage: "📊 Clasificación de Grupos (Simulación)",
+  bracketQualified: "Clasificado directo (1º/2º)",
+  bracketThirdPlace: "Posible 3º clasificado",
+  bracketHideGroups: "Ocultar Grupos",
+  bracketShowGroups: "Ver Grupos",
+  bracketLocked: "Resultado oficial (Admin)",
 };

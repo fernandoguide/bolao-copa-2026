@@ -194,4 +194,14 @@ export const en: Translations = {
   bracketWinner: "Winner",
   bracketPending: "Pending",
   bracketTBD: "TBD",
+  bracketSimInfo:
+    "Groups are simulated based on your predictions. Official results are defined by the Admin only.",
+  bracketNoPredictions:
+    "⚠️ You don't have predictions for the group stage yet. Make your predictions to see the simulation!",
+  bracketGroupStage: "📊 Group Standings (Simulation)",
+  bracketQualified: "Qualified directly (1st/2nd)",
+  bracketThirdPlace: "Possible 3rd-place qualifier",
+  bracketHideGroups: "Hide Groups",
+  bracketShowGroups: "Show Groups",
+  bracketLocked: "Official result (Admin)",
 };
