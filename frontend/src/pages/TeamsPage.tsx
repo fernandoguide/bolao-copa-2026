@@ -15,6 +15,19 @@ const KNOCKOUT_ROUNDS = [
     { key: 'final', matches: 1 },
 ];
 
+/** Bracket position for each match label (mirrors BracketPage) */
+const LABEL_TO_POS: Record<string, number> = {
+    'Jogo 74': 0, 'Jogo 77': 1, 'Jogo 73': 2, 'Jogo 75': 3,
+    'Jogo 83': 4, 'Jogo 84': 5, 'Jogo 81': 6, 'Jogo 82': 7,
+    'Jogo 76': 8, 'Jogo 78': 9, 'Jogo 79': 10, 'Jogo 80': 11,
+    'Jogo 86': 12, 'Jogo 88': 13, 'Jogo 85': 14, 'Jogo 87': 15,
+    'Jogo 89': 0, 'Jogo 90': 1, 'Jogo 93': 2, 'Jogo 94': 3,
+    'Jogo 91': 4, 'Jogo 92': 5, 'Jogo 95': 6, 'Jogo 96': 7,
+    'Jogo 97': 0, 'Jogo 98': 1, 'Jogo 99': 2, 'Jogo 100': 3,
+    'Jogo 101': 0, 'Jogo 102': 1,
+    'Final': 0,
+};
+
 interface TeamStanding {
     team: Team;
     played: number;
@@ -177,16 +190,41 @@ export default function TeamsPage() {
             if (!byStage[m.stage]) byStage[m.stage] = [];
             byStage[m.stage].push(m);
         }
+        // Sort by bracket position instead of date
         for (const stage of Object.keys(byStage)) {
-            byStage[stage].sort(
-                (a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime()
-            );
+            byStage[stage].sort((a, b) => {
+                const posA = a.matchLabel ? (LABEL_TO_POS[a.matchLabel] ?? 99) : 99;
+                const posB = b.matchLabel ? (LABEL_TO_POS[b.matchLabel] ?? 99) : 99;
+                return posA - posB;
+            });
         }
         return KNOCKOUT_ROUNDS.map((round) => ({
             ...round,
             matchList: byStage[round.key] || [],
         }));
     }, [knockoutMatches]);
+
+    // Split each round into left/right halves for mirror bracket layout
+    const leftKnockout = useMemo(() =>
+        knockoutRounds.slice(0, 4).map((round) => ({
+            ...round,
+            matchList: round.matchList.slice(0, Math.ceil(round.matchList.length / 2)),
+        })),
+        [knockoutRounds]
+    );
+
+    const rightKnockout = useMemo(() =>
+        knockoutRounds.slice(0, 4).map((round) => ({
+            ...round,
+            matchList: round.matchList.slice(Math.ceil(round.matchList.length / 2)),
+        })),
+        [knockoutRounds]
+    );
+
+    const finalMatch = useMemo(() => {
+        const finalRound = knockoutRounds.find((r) => r.key === 'final');
+        return finalRound?.matchList[0] || null;
+    }, [knockoutRounds]);
 
     const hasKnockoutMatches = knockoutMatches.length > 0;
 
@@ -282,19 +320,58 @@ export default function TeamsPage() {
 
                     {showKnockout && (
                         <div className="overflow-x-auto pb-4">
-                            <div className="flex gap-4 min-w-max items-start">
-                                {knockoutRounds.map((round) => {
+                            <div className="flex min-w-max items-start gap-3">
+                                {/* LEFT SIDE: R32(0-7) → R16(0-3) → QF(0-1) → SF(0) */}
+                                {leftKnockout.map((round, idx) => {
                                     if (round.matchList.length === 0) return null;
                                     const stageLabel = stageLabels[round.key] || round.key;
                                     return (
-                                        <div key={round.key} className="flex flex-col items-center">
-                                            <div className="text-xs font-semibold text-primary-400 mb-3 px-2 py-1 bg-primary-900/20 rounded-full border border-primary-700/30">
+                                        <div key={`left-${round.key}`} className="flex flex-col items-center">
+                                            <div className="text-xs font-semibold text-primary-400 mb-3 px-2 py-1 bg-primary-900/20 rounded-full border border-primary-700/30 whitespace-nowrap">
                                                 {stageLabel}
                                             </div>
                                             <div
-                                                className="flex flex-col gap-2"
+                                                className="flex flex-col justify-around"
                                                 style={{
-                                                    minHeight: `${round.matchList.length * 68}px`,
+                                                    gap: `${Math.pow(2, idx) * 8 + 8}px`,
+                                                    minHeight: `${8 * 68}px`,
+                                                }}
+                                            >
+                                                {round.matchList.map((match) => (
+                                                    <KnockoutMatchCard key={match.id} match={match} t={t} />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+
+                                {/* CENTER: Final */}
+                                {finalMatch && (
+                                    <div className="flex flex-col items-center">
+                                        <div className="text-xs font-semibold text-yellow-400 mb-3 px-3 py-1 bg-yellow-900/20 rounded-full border border-yellow-700/30">
+                                            {stageLabels['final'] || 'Final'}
+                                        </div>
+                                        <div className="flex flex-col justify-center" style={{ minHeight: `${8 * 68}px` }}>
+                                            <KnockoutMatchCard match={finalMatch} t={t} />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* RIGHT SIDE: SF(1) ← QF(2-3) ← R16(4-7) ← R32(8-15) */}
+                                {[...rightKnockout].reverse().map((round, displayIdx) => {
+                                    const roundIdx = 3 - displayIdx;
+                                    if (round.matchList.length === 0) return null;
+                                    const stageLabel = stageLabels[round.key] || round.key;
+                                    return (
+                                        <div key={`right-${round.key}`} className="flex flex-col items-center">
+                                            <div className="text-xs font-semibold text-primary-400 mb-3 px-2 py-1 bg-primary-900/20 rounded-full border border-primary-700/30 whitespace-nowrap">
+                                                {stageLabel}
+                                            </div>
+                                            <div
+                                                className="flex flex-col justify-around"
+                                                style={{
+                                                    gap: `${Math.pow(2, roundIdx) * 8 + 8}px`,
+                                                    minHeight: `${8 * 68}px`,
                                                 }}
                                             >
                                                 {round.matchList.map((match) => (
