@@ -1,4 +1,4 @@
-import { IsInt, Min, Max } from "class-validator";
+import { IsInt, Min, Max, IsOptional } from "class-validator";
 
 export class UpdateResultDto {
   @IsInt()
@@ -10,4 +10,16 @@ export class UpdateResultDto {
   @Min(0)
   @Max(99)
   awayScore: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(99)
+  homePenalty?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(99)
+  awayPenalty?: number;
 }

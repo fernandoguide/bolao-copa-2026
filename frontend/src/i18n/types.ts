@@ -187,4 +187,9 @@ export interface Translations {
   teamsKnockoutEmpty: string;
   teamsKnockoutShowBracket: string;
   teamsKnockoutHideBracket: string;
+
+  // Admin - Penalties
+  adminPenaltyLabel: string;
+  adminPenaltyRequired: string;
+  adminPenaltyNoDraw: string;
 }

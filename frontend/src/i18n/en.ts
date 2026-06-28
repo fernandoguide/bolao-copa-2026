@@ -210,4 +210,9 @@ export const en: Translations = {
   teamsKnockoutEmpty: "No playoff matches defined yet.",
   teamsKnockoutShowBracket: "Show Playoffs",
   teamsKnockoutHideBracket: "Hide Playoffs",
+
+  // Admin - Penalties
+  adminPenaltyLabel: "Draw in regular time — Enter penalty shootout result",
+  adminPenaltyRequired: "Knockout draw requires penalty shootout result",
+  adminPenaltyNoDraw: "Penalty shootout result cannot be a draw",
 };

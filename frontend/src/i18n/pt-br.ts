@@ -210,4 +210,11 @@ export const ptBR: Translations = {
   teamsKnockoutEmpty: "Nenhum jogo do mata-mata definido ainda.",
   teamsKnockoutShowBracket: "Ver Mata-mata",
   teamsKnockoutHideBracket: "Esconder Mata-mata",
+
+  // Admin - Penalties
+  adminPenaltyLabel:
+    "Empate no tempo regulamentar — Informe o resultado dos pênaltis",
+  adminPenaltyRequired:
+    "Jogo empatado no mata-mata requer resultado dos pênaltis",
+  adminPenaltyNoDraw: "Resultado dos pênaltis não pode ser empate",
 };
