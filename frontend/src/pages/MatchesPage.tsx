@@ -145,10 +145,12 @@ export default function MatchesPage() {
         return `${fmt(start)} — ${fmt(end)}`;
     };
 
-    // Split week matches: upcoming first, played at the end
+    // Split week matches: upcoming first (sorted by date asc), played at the end (sorted by date asc)
     const weekMatches = weekData?.matches || [];
-    const upcomingMatches = weekMatches.filter(m => !m.played);
-    const playedMatches = weekMatches.filter(m => m.played);
+    const now = Date.now();
+    const sortedWeekMatches = [...weekMatches].sort((a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime());
+    const upcomingMatches = sortedWeekMatches.filter(m => !m.played && new Date(m.matchDate).getTime() > now);
+    const playedMatches = sortedWeekMatches.filter(m => m.played || new Date(m.matchDate).getTime() <= now);
 
     function groupByDay(list: Match[]) {
         const loc = locale === 'pt-br' ? 'pt-BR' : locale === 'es' ? 'es' : 'en';
