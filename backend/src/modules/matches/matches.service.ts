@@ -70,7 +70,9 @@ export class MatchesService {
   ) {}
 
   async findAll(): Promise<Match[]> {
-    return this.matchesRepo.find({ order: { matchDate: "ASC" } });
+    return this.matchesRepo.find({
+      order: { played: "ASC", matchDate: "ASC" },
+    });
   }
 
   async findById(id: number): Promise<Match> {
