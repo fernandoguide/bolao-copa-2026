@@ -6,7 +6,7 @@ import { isValidScore } from '../utils/security';
 
 const STAGE_LABELS: Record<string, string> = {
     group: '🏟️ Grupos',
-    round_of_32: '⚔️ 32avos',
+    round_of_32: '⚔️ 16 avos',
     round_of_16: '⚔️ Oitavas',
     quarter_final: '🔥 Quartas',
     semi_final: '🏆 Semi',

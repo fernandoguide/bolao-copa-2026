@@ -162,7 +162,7 @@ export const es: Translations = {
   rulesPhasesTitle: "📅 Fases de la Copa 2026",
   rulesPhasesItems: [
     "<strong>Fase de Grupos:</strong> 48 selecciones divididas en 12 grupos de 4.",
-    "<strong>Octavos de Final (32avos):</strong> Los clasificados avanzan a eliminación directa.",
+    "<strong>Dieciseisavos de Final:</strong> Los clasificados avanzan a eliminación directa.",
     "<strong>Octavos, Cuartos, Semifinales, Final.</strong>",
   ],
   rulesPhasesNote:
@@ -187,7 +187,7 @@ export const es: Translations = {
   bracketInstruction:
     "Haz clic en el equipo ganador o completa los marcadores para avanzar en los brackets.",
   bracketChampion: "¡Campeón!",
-  bracketRound32: "32avos",
+  bracketRound32: "16 avos",
   bracketRound16: "Octavos",
   bracketQuarters: "Cuartos",
   bracketSemis: "Semis",

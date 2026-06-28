@@ -17,7 +17,7 @@ const WINNER_ADVANCES: Record<
   string,
   { nextLabel: string; position: "home" | "away" }
 > = {
-  // 32avos → Oitavas
+  // 16 avos → Oitavas
   "Jogo 73": { nextLabel: "Jogo 90", position: "home" },
   "Jogo 74": { nextLabel: "Jogo 89", position: "home" },
   "Jogo 75": { nextLabel: "Jogo 90", position: "away" },

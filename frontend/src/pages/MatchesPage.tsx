@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { api } from '../services/api';
 import { Match, Prediction } from '../types';
 import { getFlagUrl } from '../utils/flags';
@@ -94,28 +94,47 @@ export default function MatchesPage() {
 
     if (loading) return <div className="text-center py-12 text-dark-400">{t.matchesLoading}</div>;
 
-    // Group matches by week
-    const sortedMatches = [...matches].sort((a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime());
-    const firstDate = sortedMatches.length > 0 ? new Date(sortedMatches[0].matchDate) : new Date();
-    const weekStart = new Date(firstDate);
-    weekStart.setHours(0, 0, 0, 0);
-    // Align to Monday
-    const day = weekStart.getDay();
-    weekStart.setDate(weekStart.getDate() - (day === 0 ? 6 : day - 1));
+    // Group matches by week (memoised)
+    const filledWeeks = useMemo(() => {
+        const sortedMatches = [...matches].sort((a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime());
+        if (sortedMatches.length === 0) return [];
 
-    const weeks: { start: Date; end: Date; matches: Match[] }[] = [];
-    for (const match of sortedMatches) {
-        const matchTime = new Date(match.matchDate).getTime();
-        const weeksSinceStart = Math.floor((matchTime - weekStart.getTime()) / (7 * 24 * 60 * 60 * 1000));
-        if (!weeks[weeksSinceStart]) {
-            const wStart = new Date(weekStart.getTime() + weeksSinceStart * 7 * 24 * 60 * 60 * 1000);
-            const wEnd = new Date(wStart.getTime() + 6 * 24 * 60 * 60 * 1000);
-            weeks[weeksSinceStart] = { start: wStart, end: wEnd, matches: [] };
+        const firstDate = new Date(sortedMatches[0].matchDate);
+        const weekStart = new Date(firstDate);
+        weekStart.setHours(0, 0, 0, 0);
+        const day = weekStart.getDay();
+        weekStart.setDate(weekStart.getDate() - (day === 0 ? 6 : day - 1));
+
+        const weeks: { start: Date; end: Date; matches: Match[] }[] = [];
+        for (const match of sortedMatches) {
+            const matchTime = new Date(match.matchDate).getTime();
+            const weeksSinceStart = Math.floor((matchTime - weekStart.getTime()) / (7 * 24 * 60 * 60 * 1000));
+            if (!weeks[weeksSinceStart]) {
+                const wStart = new Date(weekStart.getTime() + weeksSinceStart * 7 * 24 * 60 * 60 * 1000);
+                const wEnd = new Date(wStart.getTime() + 6 * 24 * 60 * 60 * 1000);
+                weeks[weeksSinceStart] = { start: wStart, end: wEnd, matches: [] };
+            }
+            weeks[weeksSinceStart].matches.push(match);
         }
-        weeks[weeksSinceStart].matches.push(match);
-    }
-    // Filter out empty slots
-    const filledWeeks = weeks.filter(Boolean);
+        return weeks.filter(Boolean);
+    }, [matches]);
+
+    // Auto-navigate to the week containing today / first upcoming match
+    const autoNavDone = useRef(false);
+    useEffect(() => {
+        if (autoNavDone.current || filledWeeks.length === 0) return;
+        const now = Date.now();
+        let target = filledWeeks.length - 1;
+        for (let i = 0; i < filledWeeks.length; i++) {
+            if (filledWeeks[i].matches.some(m => !m.played || new Date(m.matchDate).getTime() > now)) {
+                target = i;
+                break;
+            }
+        }
+        setCurrentWeek(target);
+        autoNavDone.current = true;
+    }, [filledWeeks]);
+
     const totalWeeks = filledWeeks.length;
     const safeWeek = Math.min(currentWeek, totalWeeks - 1);
     const weekData = filledWeeks[safeWeek];
@@ -126,19 +145,27 @@ export default function MatchesPage() {
         return `${fmt(start)} — ${fmt(end)}`;
     };
 
-    // Group current week's matches by day
+    // Split week matches: upcoming first, played at the end
     const weekMatches = weekData?.matches || [];
-    const groupedByDay = weekMatches.reduce<Record<string, Match[]>>((acc, match) => {
+    const upcomingMatches = weekMatches.filter(m => !m.played);
+    const playedMatches = weekMatches.filter(m => m.played);
+
+    function groupByDay(list: Match[]) {
         const loc = locale === 'pt-br' ? 'pt-BR' : locale === 'es' ? 'es' : 'en';
-        const key = new Date(match.matchDate).toLocaleDateString(loc, {
-            weekday: 'long',
-            day: '2-digit',
-            month: '2-digit',
-        });
-        if (!acc[key]) acc[key] = [];
-        acc[key].push(match);
-        return acc;
-    }, {});
+        return list.reduce<Record<string, Match[]>>((acc, match) => {
+            const key = new Date(match.matchDate).toLocaleDateString(loc, {
+                weekday: 'long',
+                day: '2-digit',
+                month: '2-digit',
+            });
+            if (!acc[key]) acc[key] = [];
+            acc[key].push(match);
+            return acc;
+        }, {});
+    }
+
+    const upcomingByDay = groupByDay(upcomingMatches);
+    const playedByDay = groupByDay(playedMatches);
 
     return (
         <div>
@@ -187,8 +214,8 @@ export default function MatchesPage() {
                 </div>
             )}
 
-            {Object.entries(groupedByDay).map(([dayLabel, dayMatches]) => (
-                <div key={dayLabel} className="mb-6">
+            {Object.entries(upcomingByDay).map(([dayLabel, dayMatches]) => (
+                <div key={`upcoming-${dayLabel}`} className="mb-6">
                     <h2 className="text-base font-semibold text-primary-300 mb-3 border-b border-dark-700 pb-2 capitalize">
                         📅 {dayLabel}
                     </h2>
@@ -213,11 +240,6 @@ export default function MatchesPage() {
                                                 {stageLabels[match.stage] || match.stage}
                                             </span>
                                         </div>
-                                        {match.played && (
-                                            <span className="text-xs bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full font-medium border border-green-500/20">
-                                                {t.matchesFinished}
-                                            </span>
-                                        )}
                                         {!match.played && isLocked && (
                                             <span className="text-xs bg-yellow-500/10 text-yellow-400 px-2 py-0.5 rounded-full font-medium border border-yellow-500/20">
                                                 {t.matchesLocked}
@@ -245,44 +267,36 @@ export default function MatchesPage() {
                                             )}
                                         </div>
 
-                                        {/* Score / Input */}
-                                        {match.played ? (
-                                            <div className="flex items-center gap-2 bg-dark-900 px-4 py-2 rounded-xl border border-dark-600">
-                                                <span className="text-xl font-bold text-white">{match.homeScore}</span>
-                                                <span className="text-dark-500 mx-1">×</span>
-                                                <span className="text-xl font-bold text-white">{match.awayScore}</span>
-                                            </div>
-                                        ) : (
-                                            <div className="flex items-center gap-0 bg-dark-900/80 rounded-xl border border-dark-600 overflow-hidden">
-                                                <input
-                                                    type="text"
-                                                    inputMode="numeric"
-                                                    maxLength={2}
-                                                    value={predictions[match.id]?.home || ''}
-                                                    onChange={(e) => {
-                                                        const v = e.target.value.replace(/[^0-9]/g, '');
-                                                        handleScoreChange(match.id, 'home', v);
-                                                    }}
-                                                    disabled={isLocked}
-                                                    placeholder="-"
-                                                    className="w-10 h-10 text-center bg-transparent text-lg font-bold text-white outline-none placeholder-dark-600 disabled:opacity-30"
-                                                />
-                                                <span className="text-dark-500 font-bold px-1">×</span>
-                                                <input
-                                                    type="text"
-                                                    inputMode="numeric"
-                                                    maxLength={2}
-                                                    value={predictions[match.id]?.away || ''}
-                                                    onChange={(e) => {
-                                                        const v = e.target.value.replace(/[^0-9]/g, '');
-                                                        handleScoreChange(match.id, 'away', v);
-                                                    }}
-                                                    disabled={isLocked}
-                                                    placeholder="-"
-                                                    className="w-10 h-10 text-center bg-transparent text-lg font-bold text-white outline-none placeholder-dark-600 disabled:opacity-30"
-                                                />
-                                            </div>
-                                        )}
+                                        {/* Score Input */}
+                                        <div className="flex items-center gap-0 bg-dark-900/80 rounded-xl border border-dark-600 overflow-hidden">
+                                            <input
+                                                type="text"
+                                                inputMode="numeric"
+                                                maxLength={2}
+                                                value={predictions[match.id]?.home || ''}
+                                                onChange={(e) => {
+                                                    const v = e.target.value.replace(/[^0-9]/g, '');
+                                                    handleScoreChange(match.id, 'home', v);
+                                                }}
+                                                disabled={isLocked}
+                                                placeholder="-"
+                                                className="w-10 h-10 text-center bg-transparent text-lg font-bold text-white outline-none placeholder-dark-600 disabled:opacity-30"
+                                            />
+                                            <span className="text-dark-500 font-bold px-1">×</span>
+                                            <input
+                                                type="text"
+                                                inputMode="numeric"
+                                                maxLength={2}
+                                                value={predictions[match.id]?.away || ''}
+                                                onChange={(e) => {
+                                                    const v = e.target.value.replace(/[^0-9]/g, '');
+                                                    handleScoreChange(match.id, 'away', v);
+                                                }}
+                                                disabled={isLocked}
+                                                placeholder="-"
+                                                className="w-10 h-10 text-center bg-transparent text-lg font-bold text-white outline-none placeholder-dark-600 disabled:opacity-30"
+                                            />
+                                        </div>
 
                                         {/* Away Team */}
                                         <div className="flex-1 flex items-center gap-2">
@@ -303,6 +317,84 @@ export default function MatchesPage() {
                                 </div>
                             );
                         })}
+                    </div>
+                </div>
+            ))}
+
+            {/* Separator between upcoming and played */}
+            {Object.keys(playedByDay).length > 0 && Object.keys(upcomingByDay).length > 0 && (
+                <div className="my-6 flex items-center gap-3">
+                    <div className="flex-1 h-px bg-dark-600" />
+                    <span className="text-xs text-dark-400 font-medium uppercase tracking-wider">
+                        ✅ {t.matchesFinished || 'Encerrados'}
+                    </span>
+                    <div className="flex-1 h-px bg-dark-600" />
+                </div>
+            )}
+
+            {Object.entries(playedByDay).map(([dayLabel, dayMatches]) => (
+                <div key={`played-${dayLabel}`} className="mb-6">
+                    <h2 className="text-base font-semibold text-dark-400 mb-3 border-b border-dark-700 pb-2 capitalize">
+                        📅 {dayLabel}
+                    </h2>
+
+                    <div className="grid gap-3">
+                        {dayMatches.map((match) => (
+                            <div
+                                key={match.id}
+                                className="bg-dark-800/60 rounded-xl border border-green-500/20 p-4 transition-all hover:border-primary-500/30"
+                            >
+                                <div className="flex items-center justify-between flex-wrap gap-2">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs text-dark-400">🕐 {new Date(match.matchDate).toLocaleTimeString(locale === 'pt-br' ? 'pt-BR' : locale === 'es' ? 'es' : 'en', { hour: '2-digit', minute: '2-digit' })}</span>
+                                        <span className="text-xs bg-dark-700 text-dark-300 px-1.5 py-0.5 rounded">
+                                            {stageLabels[match.stage] || match.stage}
+                                        </span>
+                                    </div>
+                                    <span className="text-xs bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full font-medium border border-green-500/20">
+                                        {t.matchesFinished}
+                                    </span>
+                                </div>
+
+                                <div className="flex items-center justify-center gap-4 mt-3">
+                                    <div className="flex-1 flex items-center justify-end gap-2">
+                                        <span className="font-semibold text-dark-100 text-sm sm:text-base">
+                                            {match.homeTeam?.name || t.matchesToDefine}
+                                        </span>
+                                        {match.homeTeam?.code ? (
+                                            <img
+                                                src={getFlagUrl(match.homeTeam.code)}
+                                                alt={match.homeTeam.code}
+                                                className="w-8 h-5 object-cover rounded shadow-sm"
+                                            />
+                                        ) : (
+                                            <div className="w-8 h-5 bg-dark-700 rounded flex items-center justify-center text-xs text-dark-500">?</div>
+                                        )}
+                                    </div>
+
+                                    <div className="flex items-center gap-2 bg-dark-900 px-4 py-2 rounded-xl border border-dark-600">
+                                        <span className="text-xl font-bold text-white">{match.homeScore}</span>
+                                        <span className="text-dark-500 mx-1">×</span>
+                                        <span className="text-xl font-bold text-white">{match.awayScore}</span>
+                                    </div>
+
+                                    <div className="flex-1 flex items-center gap-2">
+                                        {match.awayTeam?.code ? (
+                                            <img
+                                                src={getFlagUrl(match.awayTeam.code)}
+                                                alt={match.awayTeam.code}
+                                                className="w-8 h-5 object-cover rounded shadow-sm"
+                                            />
+                                        ) : (
+                                            <div className="w-8 h-5 bg-dark-700 rounded flex items-center justify-center text-xs text-dark-500">?</div>
+                                        )}
+                                        <span className="font-semibold text-dark-100 text-sm sm:text-base">
+                                            {match.awayTeam?.name || t.matchesToDefine}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             ))}
