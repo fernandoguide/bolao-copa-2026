@@ -1,4 +1,11 @@
-import { IsString, MinLength, MaxLength, Matches } from "class-validator";
+import {
+  IsString,
+  MinLength,
+  MaxLength,
+  Matches,
+  IsOptional,
+  IsBoolean,
+} from "class-validator";
 
 export class CreatePoolDto {
   @IsString()
@@ -8,4 +15,8 @@ export class CreatePoolDto {
     message: "Nome do bolão contém caracteres inválidos",
   })
   name: string;
+
+  @IsOptional()
+  @IsBoolean()
+  knockoutOnly?: boolean;
 }

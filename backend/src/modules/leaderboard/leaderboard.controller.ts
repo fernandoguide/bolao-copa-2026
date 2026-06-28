@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Param,
+  Query,
   UseGuards,
   ParseIntPipe,
 } from "@nestjs/common";
@@ -14,8 +15,8 @@ export class LeaderboardController {
   constructor(private readonly leaderboardService: LeaderboardService) {}
 
   @Get()
-  async getLeaderboard() {
-    return this.leaderboardService.getLeaderboard();
+  async getLeaderboard(@Query("knockout") knockout?: string) {
+    return this.leaderboardService.getLeaderboard(knockout === "true");
   }
 
   @Get("pool/:poolId")

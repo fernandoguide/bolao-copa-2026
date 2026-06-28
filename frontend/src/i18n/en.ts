@@ -95,6 +95,10 @@ export const en: Translations = {
   leaderboardPredictions: "Predictions",
   leaderboardExactScores: "Exact Scores",
   leaderboardYou: "you",
+  leaderboardAll: "Overall",
+  leaderboardKnockout: "Knockout",
+  poolKnockoutOnly: "Knockout only",
+  poolKnockoutBadge: "Knockout",
 
   // Teams
   teamsTitle: "🌍 Groups — World Cup 2026",

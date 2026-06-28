@@ -10,7 +10,8 @@ export default function LeaderboardPage() {
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
     const [loading, setLoading] = useState(true);
     const [pools, setPools] = useState<Pool[]>([]);
-    const [selectedPool, setSelectedPool] = useState<string>('all'); // 'all' or pool id
+    const [selectedPool, setSelectedPool] = useState<string>('all');
+    const [knockoutMode, setKnockoutMode] = useState(false);
 
     useEffect(() => {
         api.get<Pool[]>('/pools/my').then(setPools).catch(() => { });
@@ -18,14 +19,18 @@ export default function LeaderboardPage() {
 
     useEffect(() => {
         setLoading(true);
-        const endpoint = selectedPool === 'all'
-            ? '/leaderboard'
-            : `/leaderboard/pool/${selectedPool}`;
+        let endpoint: string;
+        if (selectedPool === 'all') {
+            endpoint = knockoutMode ? '/leaderboard?knockout=true' : '/leaderboard';
+        } else {
+            // Pool leaderboard — knockout flag is auto-detected server-side from pool.knockoutOnly
+            endpoint = `/leaderboard/pool/${selectedPool}`;
+        }
         api.get<LeaderboardEntry[]>(endpoint).then((data) => {
             setLeaderboard(data);
             setLoading(false);
         });
-    }, [selectedPool]);
+    }, [selectedPool, knockoutMode]);
 
     if (loading) return <div className="text-center py-12 text-dark-400">{t.leaderboardLoading}</div>;
 
@@ -41,20 +46,46 @@ export default function LeaderboardPage() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <h1 className="text-2xl font-bold text-white">{t.leaderboardTitle}</h1>
 
-                {pools.length > 0 && (
-                    <select
-                        value={selectedPool}
-                        onChange={(e) => setSelectedPool(e.target.value)}
-                        className="bg-dark-800 border border-dark-700 text-white text-sm rounded-xl px-4 py-2 focus:outline-none focus:border-primary-500"
-                    >
-                        <option value="all">🌍 Bolão Livre (Todos)</option>
-                        {pools.map((pool) => (
-                            <option key={pool.id} value={pool.id}>
-                                🔒 {pool.name}
-                            </option>
-                        ))}
-                    </select>
-                )}
+                <div className="flex flex-col sm:flex-row gap-3">
+                    {/* Geral / Mata-mata toggle */}
+                    {selectedPool === 'all' && (
+                        <div className="flex bg-dark-800 rounded-xl border border-dark-700 overflow-hidden">
+                            <button
+                                onClick={() => setKnockoutMode(false)}
+                                className={`px-4 py-2 text-sm font-medium transition-colors ${!knockoutMode
+                                    ? 'bg-primary-600 text-white'
+                                    : 'text-dark-300 hover:text-white hover:bg-dark-700'
+                                    }`}
+                            >
+                                🌍 {t.leaderboardAll}
+                            </button>
+                            <button
+                                onClick={() => setKnockoutMode(true)}
+                                className={`px-4 py-2 text-sm font-medium transition-colors ${knockoutMode
+                                    ? 'bg-primary-600 text-white'
+                                    : 'text-dark-300 hover:text-white hover:bg-dark-700'
+                                    }`}
+                            >
+                                ⚔️ {t.leaderboardKnockout}
+                            </button>
+                        </div>
+                    )}
+
+                    {pools.length > 0 && (
+                        <select
+                            value={selectedPool}
+                            onChange={(e) => setSelectedPool(e.target.value)}
+                            className="bg-dark-800 border border-dark-700 text-white text-sm rounded-xl px-4 py-2 focus:outline-none focus:border-primary-500"
+                        >
+                            <option value="all">🌍 Bolão Livre (Todos)</option>
+                            {pools.map((pool) => (
+                                <option key={pool.id} value={pool.id}>
+                                    {pool.knockoutOnly ? '⚔️' : '🔒'} {pool.name}{pool.knockoutOnly ? ` (${t.poolKnockoutBadge})` : ''}
+                                </option>
+                            ))}
+                        </select>
+                    )}
+                </div>
             </div>
 
             {leaderboard.length === 0 ? (

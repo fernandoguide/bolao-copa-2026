@@ -95,6 +95,10 @@ export interface Translations {
   leaderboardPredictions: string;
   leaderboardExactScores: string;
   leaderboardYou: string;
+  leaderboardAll: string;
+  leaderboardKnockout: string;
+  poolKnockoutOnly: string;
+  poolKnockoutBadge: string;
 
   // Teams
   teamsTitle: string;

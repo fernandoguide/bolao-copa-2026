@@ -92,9 +92,7 @@ export default function MatchesPage() {
         }
     }
 
-    if (loading) return <div className="text-center py-12 text-dark-400">{t.matchesLoading}</div>;
-
-    // Group matches by week (memoised)
+    // Group matches by week (memoised) — hooks MUST be before conditional returns
     const filledWeeks = useMemo(() => {
         const sortedMatches = [...matches].sort((a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime());
         if (sortedMatches.length === 0) return [];
@@ -134,6 +132,8 @@ export default function MatchesPage() {
         setCurrentWeek(target);
         autoNavDone.current = true;
     }, [filledWeeks]);
+
+    if (loading) return <div className="text-center py-12 text-dark-400">{t.matchesLoading}</div>;
 
     const totalWeeks = filledWeeks.length;
     const safeWeek = Math.min(currentWeek, totalWeeks - 1);

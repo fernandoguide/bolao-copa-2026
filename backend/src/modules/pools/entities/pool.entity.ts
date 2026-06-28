@@ -31,6 +31,9 @@ export class Pool {
   @Column({ default: true })
   isPrivate: boolean;
 
+  @Column({ default: false })
+  knockoutOnly: boolean;
+
   @OneToMany(() => PoolMember, (member) => member.pool)
   members: PoolMember[];
 

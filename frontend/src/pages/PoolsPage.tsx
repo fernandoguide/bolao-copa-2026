@@ -13,6 +13,7 @@ export default function PoolsPage() {
     const [showCreate, setShowCreate] = useState(false);
     const [showJoin, setShowJoin] = useState(false);
     const [newPoolName, setNewPoolName] = useState('');
+    const [newPoolKnockout, setNewPoolKnockout] = useState(false);
     const [joinCode, setJoinCode] = useState('');
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
     const [selectedPool, setSelectedPool] = useState<Pool | null>(null);
@@ -41,8 +42,9 @@ export default function PoolsPage() {
         }
         setMessage(null);
         try {
-            await api.post('/pools', { name: cleanName });
+            await api.post('/pools', { name: cleanName, knockoutOnly: newPoolKnockout });
             setNewPoolName('');
+            setNewPoolKnockout(false);
             setShowCreate(false);
             setMessage({ type: 'success', text: 'Bolão criado com sucesso!' });
             await loadPools();
@@ -142,6 +144,15 @@ export default function PoolsPage() {
                         onChange={(e) => setNewPoolName(e.target.value)}
                         className="w-full bg-dark-700 border border-dark-600 rounded-lg px-4 py-2 text-white text-sm"
                     />
+                    <label className="flex items-center gap-2 text-sm text-dark-200 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            checked={newPoolKnockout}
+                            onChange={(e) => setNewPoolKnockout(e.target.checked)}
+                            className="w-4 h-4 rounded border-dark-500 bg-dark-700 text-primary-500 focus:ring-primary-500"
+                        />
+                        ⚔️ {t.poolKnockoutOnly}
+                    </label>
                     <div className="flex gap-2">
                         <button onClick={createPool} className="bg-primary-600 hover:bg-primary-500 text-white text-sm px-4 py-2 rounded-lg">
                             Criar
@@ -191,7 +202,12 @@ export default function PoolsPage() {
                     >
                         <div className="flex items-center justify-between">
                             <div>
-                                <h3 className="text-white font-medium">{pool.name}</h3>
+                                <h3 className="text-white font-medium">
+                                    {pool.name}
+                                    {pool.knockoutOnly && (
+                                        <span className="ml-2 text-xs bg-yellow-500/10 text-yellow-400 px-2 py-0.5 rounded-full border border-yellow-500/20">⚔️ {t.poolKnockoutBadge}</span>
+                                    )}
+                                </h3>
                                 <p className="text-xs text-dark-400 mt-1">
                                     {pool.ownerId === user?.id ? '👑 Você é o dono' : 'Participante'}
                                 </p>
