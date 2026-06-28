@@ -21,6 +21,8 @@ export interface Match {
   stage: string;
   homeScore: number | null;
   awayScore: number | null;
+  homePenalty: number | null;
+  awayPenalty: number | null;
   played: boolean;
   matchLabel?: string;
 }

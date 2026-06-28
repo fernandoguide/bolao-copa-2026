@@ -60,7 +60,9 @@ export class MatchesController {
     const match = await this.matchesService.updateResult(
       id,
       dto.homeScore,
-      dto.awayScore
+      dto.awayScore,
+      dto.homePenalty,
+      dto.awayPenalty
     );
     await this.predictionsService.calculatePoints(id);
     return match;

@@ -211,4 +211,10 @@ export const es: Translations = {
   teamsKnockoutEmpty: "No hay partidos de eliminatorias definidos aún.",
   teamsKnockoutShowBracket: "Ver Eliminatorias",
   teamsKnockoutHideBracket: "Ocultar Eliminatorias",
+
+  // Admin - Penalties
+  adminPenaltyLabel:
+    "Empate en tiempo reglamentario — Ingrese resultado de penales",
+  adminPenaltyRequired: "Empate en eliminatoria requiere resultado de penales",
+  adminPenaltyNoDraw: "El resultado de penales no puede ser empate",
 };

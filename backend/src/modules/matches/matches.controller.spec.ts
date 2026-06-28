@@ -27,6 +27,8 @@ describe("MatchesController", () => {
         ...mockMatch,
         homeScore: 2,
         awayScore: 0,
+        homePenalty: null,
+        awayPenalty: null,
         played: true,
       }),
     };
@@ -67,12 +69,45 @@ describe("MatchesController", () => {
     expect(result).toEqual(mockMatch);
   });
 
-  it("PATCH /matches/:id/result deve atualizar resultado", async () => {
+  it("PATCH /matches/:id/result deve atualizar resultado sem pênaltis", async () => {
     const result = await controller.updateResult(1, {
       homeScore: 2,
       awayScore: 0,
     });
     expect(result.played).toBe(true);
-    expect(matchesService.updateResult).toHaveBeenCalledWith(1, 2, 0);
+    expect(matchesService.updateResult).toHaveBeenCalledWith(
+      1,
+      2,
+      0,
+      undefined,
+      undefined
+    );
+  });
+
+  it("PATCH /matches/:id/result deve passar pênaltis ao service", async () => {
+    matchesService.updateResult.mockResolvedValue({
+      ...mockMatch,
+      homeScore: 1,
+      awayScore: 1,
+      homePenalty: 5,
+      awayPenalty: 3,
+      played: true,
+    });
+
+    const result = await controller.updateResult(1, {
+      homeScore: 1,
+      awayScore: 1,
+      homePenalty: 5,
+      awayPenalty: 3,
+    });
+
+    expect(result.homePenalty).toBe(5);
+    expect(result.awayPenalty).toBe(3);
+    expect(matchesService.updateResult).toHaveBeenCalledWith(1, 1, 1, 5, 3);
+  });
+
+  it("PATCH /matches/:id/result deve calcular pontos após salvar", async () => {
+    await controller.updateResult(1, { homeScore: 2, awayScore: 0 });
+    expect(predictionsService.calculatePoints).toHaveBeenCalledWith(1);
   });
 });

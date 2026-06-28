@@ -130,4 +130,79 @@ describe("Matches Security Tests", () => {
       expect(res.status).toBe(400);
     });
   });
+
+  describe("Penalty Validation", () => {
+    it("deve aceitar resultado com pênaltis válidos", async () => {
+      const res = await request(app.getHttpServer())
+        .patch("/matches/1/result")
+        .send({ homeScore: 1, awayScore: 1, homePenalty: 5, awayPenalty: 3 });
+
+      expect(res.status).toBe(200);
+    });
+
+    it("deve aceitar resultado sem pênaltis (fase de grupos)", async () => {
+      const res = await request(app.getHttpServer())
+        .patch("/matches/1/result")
+        .send({ homeScore: 2, awayScore: 0 });
+
+      expect(res.status).toBe(200);
+    });
+
+    it("deve rejeitar pênalti negativo", async () => {
+      const res = await request(app.getHttpServer())
+        .patch("/matches/1/result")
+        .send({ homeScore: 1, awayScore: 1, homePenalty: -1, awayPenalty: 3 });
+
+      expect(res.status).toBe(400);
+    });
+
+    it("deve rejeitar pênalti maior que 99", async () => {
+      const res = await request(app.getHttpServer())
+        .patch("/matches/1/result")
+        .send({
+          homeScore: 1,
+          awayScore: 1,
+          homePenalty: 100,
+          awayPenalty: 3,
+        });
+
+      expect(res.status).toBe(400);
+    });
+
+    it("deve rejeitar pênalti decimal", async () => {
+      const res = await request(app.getHttpServer())
+        .patch("/matches/1/result")
+        .send({
+          homeScore: 1,
+          awayScore: 1,
+          homePenalty: 4.5,
+          awayPenalty: 3,
+        });
+
+      expect(res.status).toBe(400);
+    });
+
+    it("deve rejeitar pênalti como string", async () => {
+      const res = await request(app.getHttpServer())
+        .patch("/matches/1/result")
+        .send({
+          homeScore: 1,
+          awayScore: 1,
+          homePenalty: "abc",
+          awayPenalty: 3,
+        });
+
+      expect(res.status).toBe(400);
+    });
+
+    it("deve aceitar apenas homePenalty sem awayPenalty", async () => {
+      // Valida que campos opcionais podem ser enviados individualmente
+      // (a validação de negócio acontece no service)
+      const res = await request(app.getHttpServer())
+        .patch("/matches/1/result")
+        .send({ homeScore: 1, awayScore: 1, homePenalty: 5 });
+
+      expect(res.status).toBe(200);
+    });
+  });
 });

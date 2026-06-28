@@ -697,128 +697,128 @@ const matchesData = [
     round: "Round of 32",
     date: "2026-06-28",
     time: "12:00 UTC-7",
-    team1: "2A",
-    team2: "2B",
+    team1: "South Africa",
+    team2: "Canada",
     label: "Jogo 73",
   },
   {
     round: "Round of 32",
     date: "2026-06-29",
     time: "16:30 UTC-4",
-    team1: "1E",
-    team2: "3°",
+    team1: "Germany",
+    team2: "Paraguay",
     label: "Jogo 74",
   },
   {
     round: "Round of 32",
     date: "2026-06-29",
     time: "19:00 UTC-6",
-    team1: "1F",
-    team2: "2C",
+    team1: "Netherlands",
+    team2: "Morocco",
     label: "Jogo 75",
   },
   {
     round: "Round of 32",
     date: "2026-06-29",
     time: "12:00 UTC-5",
-    team1: "1C",
-    team2: "2F",
+    team1: "Brazil",
+    team2: "Japan",
     label: "Jogo 76",
   },
   {
     round: "Round of 32",
     date: "2026-06-30",
     time: "17:00 UTC-4",
-    team1: "1I",
-    team2: "3°",
+    team1: "France",
+    team2: "Sweden",
     label: "Jogo 77",
   },
   {
     round: "Round of 32",
     date: "2026-06-30",
     time: "12:00 UTC-5",
-    team1: "2E",
-    team2: "2I",
+    team1: "Ivory Coast",
+    team2: "Norway",
     label: "Jogo 78",
   },
   {
     round: "Round of 32",
     date: "2026-06-30",
     time: "19:00 UTC-6",
-    team1: "1A",
-    team2: "3°",
+    team1: "Mexico",
+    team2: "Ecuador",
     label: "Jogo 79",
   },
   {
     round: "Round of 32",
     date: "2026-07-01",
     time: "12:00 UTC-4",
-    team1: "1L",
-    team2: "3°",
+    team1: "England",
+    team2: "DR Congo",
     label: "Jogo 80",
   },
   {
     round: "Round of 32",
     date: "2026-07-01",
     time: "17:00 UTC-7",
-    team1: "1D",
-    team2: "3°",
+    team1: "USA",
+    team2: "Bosnia & Herzegovina",
     label: "Jogo 81",
   },
   {
     round: "Round of 32",
     date: "2026-07-01",
     time: "13:00 UTC-7",
-    team1: "1G",
-    team2: "3°",
+    team1: "Belgium",
+    team2: "Senegal",
     label: "Jogo 82",
   },
   {
     round: "Round of 32",
     date: "2026-07-02",
     time: "19:00 UTC-4",
-    team1: "2K",
-    team2: "2L",
+    team1: "Portugal",
+    team2: "Croatia",
     label: "Jogo 83",
   },
   {
     round: "Round of 32",
     date: "2026-07-02",
     time: "12:00 UTC-7",
-    team1: "1H",
-    team2: "2J",
+    team1: "Spain",
+    team2: "Austria",
     label: "Jogo 84",
   },
   {
     round: "Round of 32",
     date: "2026-07-02",
     time: "20:00 UTC-7",
-    team1: "1B",
-    team2: "3°",
+    team1: "Switzerland",
+    team2: "Algeria",
     label: "Jogo 85",
   },
   {
     round: "Round of 32",
     date: "2026-07-03",
     time: "18:00 UTC-4",
-    team1: "1J",
-    team2: "2H",
+    team1: "Argentina",
+    team2: "Cape Verde",
     label: "Jogo 86",
   },
   {
     round: "Round of 32",
     date: "2026-07-03",
     time: "20:30 UTC-5",
-    team1: "1K",
-    team2: "3°",
+    team1: "Colombia",
+    team2: "Ghana",
     label: "Jogo 87",
   },
   {
     round: "Round of 32",
     date: "2026-07-03",
     time: "13:00 UTC-5",
-    team1: "2D",
-    team2: "2G",
+    team1: "Australia",
+    team2: "Egypt",
     label: "Jogo 88",
   },
   // ===== ROUND OF 16 =====
@@ -983,12 +983,13 @@ async function seed() {
   for (const m of matchesData) {
     const stage = roundToStage(m.round);
     const matchDate = parseMatchDate(m.date, m.time);
-    const isGroupStage = stage === "group";
 
-    const homeTeamId =
-      isGroupStage && nameToCode[m.team1] ? teamMap[nameToCode[m.team1]] : null;
-    const awayTeamId =
-      isGroupStage && nameToCode[m.team2] ? teamMap[nameToCode[m.team2]] : null;
+    const homeTeamId = nameToCode[m.team1]
+      ? teamMap[nameToCode[m.team1]]
+      : null;
+    const awayTeamId = nameToCode[m.team2]
+      ? teamMap[nameToCode[m.team2]]
+      : null;
     const label = (m as any).label || `${m.team1} vs ${m.team2}`;
 
     const existing = await matchRepo.findOne({ where: { matchLabel: label } });
@@ -1004,7 +1005,7 @@ async function seed() {
         } as any)
       );
       created++;
-    } else if (isGroupStage && !existing.home_team_id) {
+    } else if (!existing.home_team_id && homeTeamId) {
       await matchRepo.update(existing.id, {
         homeTeam: homeTeamId ? { id: homeTeamId } : null,
         awayTeam: awayTeamId ? { id: awayTeamId } : null,
