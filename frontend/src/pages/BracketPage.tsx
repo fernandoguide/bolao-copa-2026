@@ -283,7 +283,7 @@ const R32_BRACKET: R32Slot[] = [
     // Left side
     { home: '1E', away: '3ABCDF' },   // pos 0 (Match 74)
     { home: '1I', away: '3CDFGH' },   // pos 1 (Match 77)
-    { home: '2A', away: '2B' },        // pos 2 (Match 78)
+    { home: '2A', away: '2B' },        // pos 2 (Match 73)
     { home: '1F', away: '2C' },        // pos 3 (Match 75)
     { home: '2K', away: '2L' },        // pos 4 (Match 83)
     { home: '1H', away: '2J' },        // pos 5 (Match 84)
@@ -388,29 +388,72 @@ function seedR32(standings: Record<string, GroupStanding[]>): { home: Team | nul
     });
 }
 
+/**
+ * Mapa do label de cada partida → posição correta no bracket.
+ * Garante que o chaveamento visual espelhe o bracket oficial FIFA 2026,
+ * independentemente da ordem de datas.
+ */
+const LABEL_TO_BRACKET_POS: Record<string, { round: number; position: number }> = {
+    // 32avos (round 0) – lado esquerdo
+    'Jogo 74': { round: 0, position: 0 },
+    'Jogo 77': { round: 0, position: 1 },
+    'Jogo 73': { round: 0, position: 2 },
+    'Jogo 75': { round: 0, position: 3 },
+    'Jogo 83': { round: 0, position: 4 },
+    'Jogo 84': { round: 0, position: 5 },
+    'Jogo 81': { round: 0, position: 6 },
+    'Jogo 82': { round: 0, position: 7 },
+    // 32avos (round 0) – lado direito
+    'Jogo 76': { round: 0, position: 8 },
+    'Jogo 78': { round: 0, position: 9 },
+    'Jogo 79': { round: 0, position: 10 },
+    'Jogo 80': { round: 0, position: 11 },
+    'Jogo 86': { round: 0, position: 12 },
+    'Jogo 88': { round: 0, position: 13 },
+    'Jogo 85': { round: 0, position: 14 },
+    'Jogo 87': { round: 0, position: 15 },
+    // Oitavas (round 1)
+    'Jogo 89': { round: 1, position: 0 },
+    'Jogo 90': { round: 1, position: 1 },
+    'Jogo 93': { round: 1, position: 2 },
+    'Jogo 94': { round: 1, position: 3 },
+    'Jogo 91': { round: 1, position: 4 },
+    'Jogo 92': { round: 1, position: 5 },
+    'Jogo 95': { round: 1, position: 6 },
+    'Jogo 96': { round: 1, position: 7 },
+    // Quartas (round 2)
+    'Jogo 97': { round: 2, position: 0 },
+    'Jogo 98': { round: 2, position: 1 },
+    'Jogo 99': { round: 2, position: 2 },
+    'Jogo 100': { round: 2, position: 3 },
+    // Semis (round 3)
+    'Jogo 101': { round: 3, position: 0 },
+    'Jogo 102': { round: 3, position: 1 },
+    // Final (round 4)
+    'Final': { round: 4, position: 0 },
+};
+
 function initializeBracket(
     knockoutMatches: Match[],
     qualifiedSeeding: { home: Team | null; away: Team | null }[]
 ): BracketState {
     const state: BracketState = {};
 
-    const matchesByStage: Record<string, Match[]> = {};
+    // Map each real match to its correct bracket slot via matchLabel
+    const matchByBracketId = new Map<string, Match>();
     for (const m of knockoutMatches) {
-        if (!matchesByStage[m.stage]) matchesByStage[m.stage] = [];
-        matchesByStage[m.stage].push(m);
-    }
-
-    for (const stage of Object.keys(matchesByStage)) {
-        matchesByStage[stage].sort(
-            (a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime()
-        );
+        if (m.matchLabel) {
+            const pos = LABEL_TO_BRACKET_POS[m.matchLabel];
+            if (pos) {
+                matchByBracketId.set(generateBracketId(pos.round, pos.position), m);
+            }
+        }
     }
 
     ROUNDS.forEach((round, roundIdx) => {
-        const stageMatches = matchesByStage[round.key] || [];
         for (let pos = 0; pos < round.matches; pos++) {
             const id = generateBracketId(roundIdx, pos);
-            const realMatch = stageMatches[pos] || undefined;
+            const realMatch = matchByBracketId.get(id);
 
             let homeTeam: Team | null = null;
             let awayTeam: Team | null = null;
@@ -799,18 +842,39 @@ export default function BracketPage() {
         });
     };
 
-    const roundMatches: BracketMatch[][] = useMemo(
-        () =>
-            ROUNDS.map((_, roundIdx) => {
-                const matches: BracketMatch[] = [];
-                for (let pos = 0; pos < ROUNDS[roundIdx].matches; pos++) {
-                    const id = generateBracketId(roundIdx, pos);
-                    if (bracket[id]) matches.push(bracket[id]);
-                }
-                return matches;
-            }),
-        [bracket]
-    );
+    // Split each round into left/right halves for mirror bracket layout
+    const leftRounds: BracketMatch[][] = useMemo(() => {
+        const rounds: BracketMatch[][] = [];
+        for (let r = 0; r < 4; r++) {
+            const half = ROUNDS[r].matches / 2;
+            const matches: BracketMatch[] = [];
+            for (let p = 0; p < half; p++) {
+                const id = generateBracketId(r, p);
+                if (bracket[id]) matches.push(bracket[id]);
+            }
+            rounds.push(matches);
+        }
+        return rounds;
+    }, [bracket]);
+
+    const rightRounds: BracketMatch[][] = useMemo(() => {
+        const rounds: BracketMatch[][] = [];
+        for (let r = 0; r < 4; r++) {
+            const half = ROUNDS[r].matches / 2;
+            const matches: BracketMatch[] = [];
+            for (let p = half; p < ROUNDS[r].matches; p++) {
+                const id = generateBracketId(r, p);
+                if (bracket[id]) matches.push(bracket[id]);
+            }
+            rounds.push(matches);
+        }
+        return rounds;
+    }, [bracket]);
+
+    const finalMatch = useMemo(() => {
+        const id = generateBracketId(4, 0);
+        return bracket[id] || null;
+    }, [bracket]);
 
     if (loading) {
         return <div className="p-8 text-center text-dark-400">{t.loading}</div>;
@@ -911,19 +975,20 @@ export default function BracketPage() {
                 </div>
             )}
 
-            {/* Bracket Grid */}
+            {/* Bracket Grid — Mirror Layout */}
             <div className="overflow-x-auto pb-4">
-                <div className="flex gap-4 min-w-max items-start">
-                    {roundMatches.map((matches, roundIdx) => (
-                        <div key={roundIdx} className="flex flex-col items-center">
-                            <div className="text-xs font-semibold text-primary-400 mb-3 px-2 py-1 bg-primary-900/20 rounded-full border border-primary-700/30">
+                <div className="flex min-w-max items-start gap-3">
+                    {/* ── LEFT SIDE: R32(0-7) → R16(0-3) → QF(0-1) → SF(0) ── */}
+                    {leftRounds.map((matches, roundIdx) => (
+                        <div key={`left-${roundIdx}`} className="flex flex-col items-center">
+                            <div className="text-xs font-semibold text-primary-400 mb-3 px-2 py-1 bg-primary-900/20 rounded-full border border-primary-700/30 whitespace-nowrap">
                                 {roundLabels[roundIdx]}
                             </div>
                             <div
                                 className="flex flex-col justify-around"
                                 style={{
                                     gap: `${Math.pow(2, roundIdx) * 8 + 8}px`,
-                                    minHeight: `${ROUNDS[0].matches * 68}px`,
+                                    minHeight: `${8 * 68}px`,
                                 }}
                             >
                                 {matches.map((match) => (
@@ -937,6 +1002,50 @@ export default function BracketPage() {
                             </div>
                         </div>
                     ))}
+
+                    {/* ── CENTER: Final ── */}
+                    {finalMatch && (
+                        <div className="flex flex-col items-center">
+                            <div className="text-xs font-semibold text-yellow-400 mb-3 px-3 py-1 bg-yellow-900/20 rounded-full border border-yellow-700/30">
+                                {roundLabels[4]}
+                            </div>
+                            <div className="flex flex-col justify-center" style={{ minHeight: `${8 * 68}px` }}>
+                                <BracketMatchCard
+                                    match={finalMatch}
+                                    onSelectWinner={(team) => handleSelectWinner(finalMatch.id, team)}
+                                    onScoreChange={(team, score) => handleScoreChange(finalMatch.id, team, score)}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ── RIGHT SIDE: SF(1) ← QF(2-3) ← R16(4-7) ← R32(8-15) ── */}
+                    {[...rightRounds].reverse().map((matches, displayIdx) => {
+                        const roundIdx = 3 - displayIdx;
+                        return (
+                            <div key={`right-${displayIdx}`} className="flex flex-col items-center">
+                                <div className="text-xs font-semibold text-primary-400 mb-3 px-2 py-1 bg-primary-900/20 rounded-full border border-primary-700/30 whitespace-nowrap">
+                                    {roundLabels[roundIdx]}
+                                </div>
+                                <div
+                                    className="flex flex-col justify-around"
+                                    style={{
+                                        gap: `${Math.pow(2, roundIdx) * 8 + 8}px`,
+                                        minHeight: `${8 * 68}px`,
+                                    }}
+                                >
+                                    {matches.map((match) => (
+                                        <BracketMatchCard
+                                            key={match.id}
+                                            match={match}
+                                            onSelectWinner={(team) => handleSelectWinner(match.id, team)}
+                                            onScoreChange={(team, score) => handleScoreChange(match.id, team, score)}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
 
