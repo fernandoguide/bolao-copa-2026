@@ -37,7 +37,7 @@ interface GroupStanding {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const ROUNDS = [
-    { key: 'round_of_32', label: '32avos', matches: 16 },
+    { key: 'round_of_32', label: '16 avos', matches: 16 },
     { key: 'round_of_16', label: 'Oitavas', matches: 8 },
     { key: 'quarter_final', label: 'Quartas', matches: 4 },
     { key: 'semi_final', label: 'Semis', matches: 2 },
@@ -394,7 +394,7 @@ function seedR32(standings: Record<string, GroupStanding[]>): { home: Team | nul
  * independentemente da ordem de datas.
  */
 const LABEL_TO_BRACKET_POS: Record<string, { round: number; position: number }> = {
-    // 32avos (round 0) – lado esquerdo
+    // 16 avos (round 0) – lado esquerdo
     'Jogo 74': { round: 0, position: 0 },
     'Jogo 77': { round: 0, position: 1 },
     'Jogo 73': { round: 0, position: 2 },
@@ -403,7 +403,7 @@ const LABEL_TO_BRACKET_POS: Record<string, { round: number; position: number }> 
     'Jogo 84': { round: 0, position: 5 },
     'Jogo 81': { round: 0, position: 6 },
     'Jogo 82': { round: 0, position: 7 },
-    // 32avos (round 0) – lado direito
+    // 16 avos (round 0) – lado direito
     'Jogo 76': { round: 0, position: 8 },
     'Jogo 78': { round: 0, position: 9 },
     'Jogo 79': { round: 0, position: 10 },

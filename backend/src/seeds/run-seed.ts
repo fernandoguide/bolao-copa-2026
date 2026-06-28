@@ -1017,7 +1017,7 @@ async function seed() {
   console.log(`  ✓ ${created} jogos criados/atualizados`);
   console.log("\n🏆 Seed concluído!");
   console.log("  • 72 jogos fase de grupos");
-  console.log("  • 16 oitavas (32avos)");
+  console.log("  • 16 jogos (16 avos)");
   console.log("  • 8 oitavas de final");
   console.log("  • 4 quartas de final");
   console.log("  • 2 semifinais");

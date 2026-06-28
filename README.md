@@ -5,7 +5,7 @@ Aplicação fullstack para bolão de palpites da Copa do Mundo FIFA 2026 (EUA, M
 🔗 **Acesse:** https://bolao-copa2026.up.railway.app
 
 - **48 seleções** distribuídas em 12 grupos (A–L)
-- **104 jogos** — 72 na fase de grupos + 32 no mata-mata (32avos, oitavas, quartas, semi, 3° lugar e final)
+- **104 jogos** — 72 na fase de grupos + 32 no mata-mata (16 avos, oitavas, quartas, semi, 3° lugar e final)
 - Horários convertidos para **GMT-3 (América/São_Paulo)**
 - Dados reais do calendário oficial (fonte: [openfootball/worldcup.json](https://github.com/openfootball/worldcup.json/blob/master/2026/worldcup.json))
 
@@ -141,7 +141,7 @@ O comando `npm run seed` (no backend) popula o banco com:
 - **48 seleções** nos 12 grupos oficiais
 - **104 partidas** com datas e horários reais em GMT-3
 
-Jogos do mata-mata são criados com times definidos a partir dos 32avos (resultado real da fase de grupos). Fases seguintes (oitavas em diante) são preenchidas automaticamente conforme os resultados avançam via chaveamento.
+Jogos do mata-mata são criados com times definidos a partir dos 16 avos (resultado real da fase de grupos). Fases seguintes (oitavas em diante) são preenchidas automaticamente conforme os resultados avançam via chaveamento.
 
 Em jogos de mata-mata com empate, o admin informa o resultado dos pênaltis. O vencedor (tempo normal ou pênaltis) avança automaticamente para a próxima fase.
 
@@ -287,7 +287,7 @@ Quando um resultado é salvo em jogo de mata-mata, o vencedor avança automatica
 | Fase             | Datas              | Jogos |
 | ---------------- | ------------------ | ----- |
 | Fase de Grupos   | 11/06 – 27/06/2026 | 72    |
-| 32avos de final  | 28/06 – 03/07/2026 | 16    |
+| 16 avos de final | 28/06 – 03/07/2026 | 16    |
 | Oitavas de final | 04/07 – 07/07/2026 | 8     |
 | Quartas de final | 09/07 – 11/07/2026 | 4     |
 | Semifinais       | 14/07 – 15/07/2026 | 2     |
@@ -296,7 +296,7 @@ Quando um resultado é salvo em jogo de mata-mata, o vencedor avança automatica
 
 Todos os horários exibidos em **GMT-3 (América/São_Paulo)**.
 
-### 32avos de Final (times definidos)
+### 16 avos de Final (times definidos)
 
 | Data  | Hora  | Jogo                          | Estádio              |
 | ----- | ----- | ----------------------------- | -------------------- |
@@ -320,7 +320,7 @@ Todos os horários exibidos em **GMT-3 (América/São_Paulo)**.
 ### Chaveamento do Mata-mata
 
 ```
-32avos (16 jogos)  →  Oitavas (8 jogos)  →  Quartas (4)  →  Semis (2)  →  Final
+16 avos (16 jogos)  →  Oitavas (8 jogos)  →  Quartas (4)  →  Semis (2)  →  Final
 
 Jogo 74 ─┐                                Jogo 97 ─┐
          ├─ Jogo 89 ─┐                              ├─ Jogo 101 ─┐
