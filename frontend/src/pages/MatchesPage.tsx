@@ -145,25 +145,35 @@ export default function MatchesPage() {
         return `${fmt(start)} — ${fmt(end)}`;
     };
 
-    // Split week matches: upcoming first (sorted by date asc), played at the end (sorted by date asc)
+    // Split week matches: upcoming first (by date asc), played at end (by date asc)
     const weekMatches = weekData?.matches || [];
     const now = Date.now();
-    const sortedWeekMatches = [...weekMatches].sort((a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime());
-    const upcomingMatches = sortedWeekMatches.filter(m => !m.played && new Date(m.matchDate).getTime() > now);
-    const playedMatches = sortedWeekMatches.filter(m => m.played || new Date(m.matchDate).getTime() <= now);
+    const upcomingMatches = weekMatches
+        .filter(m => !m.played && new Date(m.matchDate).getTime() > now)
+        .sort((a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime());
+    const playedMatches = weekMatches
+        .filter(m => m.played || new Date(m.matchDate).getTime() <= now)
+        .sort((a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime());
 
-    function groupByDay(list: Match[]) {
+    function groupByDay(list: Match[], reverse = false) {
         const loc = locale === 'pt-br' ? 'pt-BR' : locale === 'es' ? 'es' : 'en';
-        return list.reduce<Record<string, Match[]>>((acc, match) => {
-            const key = new Date(match.matchDate).toLocaleDateString(loc, {
+        const grouped = list.reduce<{ key: string; date: number; matches: Match[] }[]>((acc, match) => {
+            const d = new Date(match.matchDate);
+            const key = d.toLocaleDateString(loc, {
                 weekday: 'long',
                 day: '2-digit',
                 month: '2-digit',
             });
-            if (!acc[key]) acc[key] = [];
-            acc[key].push(match);
+            const existing = acc.find(g => g.key === key);
+            if (existing) {
+                existing.matches.push(match);
+            } else {
+                acc.push({ key, date: d.getTime(), matches: [match] });
+            }
             return acc;
-        }, {});
+        }, []);
+        grouped.sort((a, b) => reverse ? b.date - a.date : a.date - b.date);
+        return grouped;
     }
 
     const upcomingByDay = groupByDay(upcomingMatches);
@@ -216,7 +226,7 @@ export default function MatchesPage() {
                 </div>
             )}
 
-            {Object.entries(upcomingByDay).map(([dayLabel, dayMatches]) => (
+            {upcomingByDay.map(({ key: dayLabel, matches: dayMatches }) => (
                 <div key={`upcoming-${dayLabel}`} className="mb-6">
                     <h2 className="text-base font-semibold text-primary-300 mb-3 border-b border-dark-700 pb-2 capitalize">
                         📅 {dayLabel}
@@ -324,7 +334,7 @@ export default function MatchesPage() {
             ))}
 
             {/* Separator between upcoming and played */}
-            {Object.keys(playedByDay).length > 0 && Object.keys(upcomingByDay).length > 0 && (
+            {playedByDay.length > 0 && upcomingByDay.length > 0 && (
                 <div className="my-6 flex items-center gap-3">
                     <div className="flex-1 h-px bg-dark-600" />
                     <span className="text-xs text-dark-400 font-medium uppercase tracking-wider">
@@ -334,7 +344,7 @@ export default function MatchesPage() {
                 </div>
             )}
 
-            {Object.entries(playedByDay).map(([dayLabel, dayMatches]) => (
+            {playedByDay.map(({ key: dayLabel, matches: dayMatches }) => (
                 <div key={`played-${dayLabel}`} className="mb-6">
                     <h2 className="text-base font-semibold text-dark-400 mb-3 border-b border-dark-700 pb-2 capitalize">
                         📅 {dayLabel}

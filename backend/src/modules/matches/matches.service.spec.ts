@@ -46,7 +46,9 @@ describe("MatchesService", () => {
       repo.find.mockResolvedValue([mockMatch]);
       const result = await service.findAll();
       expect(result).toEqual([mockMatch]);
-      expect(repo.find).toHaveBeenCalledWith({ order: { matchDate: "ASC" } });
+      expect(repo.find).toHaveBeenCalledWith({
+        order: { played: "ASC", matchDate: "ASC" },
+      });
     });
   });
 
