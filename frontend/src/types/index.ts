@@ -52,6 +52,7 @@ export interface Pool {
   ownerId: string;
   owner?: User;
   isPrivate: boolean;
+  knockoutOnly?: boolean;
   members?: PoolMember[];
   createdAt: string;
 }

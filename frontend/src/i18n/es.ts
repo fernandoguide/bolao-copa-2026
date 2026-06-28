@@ -95,6 +95,10 @@ export const es: Translations = {
   leaderboardPredictions: "Pronósticos",
   leaderboardExactScores: "Marcadores Exactos",
   leaderboardYou: "tú",
+  leaderboardAll: "General",
+  leaderboardKnockout: "Eliminatoria",
+  poolKnockoutOnly: "Solo Eliminatoria",
+  poolKnockoutBadge: "Eliminatoria",
 
   // Teams
   teamsTitle: "🌍 Grupos — Copa 2026",

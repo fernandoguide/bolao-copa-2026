@@ -28,6 +28,7 @@ export class PoolsService {
       inviteCode,
       ownerId: userId,
       isPrivate: true,
+      knockoutOnly: dto.knockoutOnly ?? false,
     });
 
     const saved = await this.poolsRepo.save(pool);

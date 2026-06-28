@@ -95,6 +95,10 @@ export const ptBR: Translations = {
   leaderboardPredictions: "Palpites",
   leaderboardExactScores: "Placares Exatos",
   leaderboardYou: "você",
+  leaderboardAll: "Geral",
+  leaderboardKnockout: "Mata-mata",
+  poolKnockoutOnly: "Apenas Mata-mata",
+  poolKnockoutBadge: "Mata-mata",
 
   // Teams
   teamsTitle: "🌍 Grupos — Copa 2026",
